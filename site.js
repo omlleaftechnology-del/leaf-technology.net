@@ -88,3 +88,33 @@ document.querySelectorAll('.intercom-hero-gallery').forEach(gallery=>{
  motion.addEventListener('change',e=>{if(e.matches){paused=true;show(current);}});
  controls.hidden=false;show(0);
 });
+
+// One manually controlled gallery for all administrator screens.
+document.querySelectorAll('.admin-gallery').forEach(gallery=>{
+ const buttons=[...gallery.querySelectorAll('.admin-gallery-thumb')];
+ const main=gallery.querySelector('.admin-gallery-main');
+ const full=gallery.querySelector('.admin-gallery-full');
+ const open=gallery.querySelector('.admin-gallery-open');
+ const title=gallery.querySelector('.admin-gallery-title');
+ const count=gallery.querySelector('.admin-gallery-count');
+ let current=0;
+ function show(index){
+  current=(index+buttons.length)%buttons.length;
+  const button=buttons[current],src=button.querySelector('img').getAttribute('src'),label=button.querySelector('span').textContent;
+  main.src=src;main.alt=label;full.href=src;open.href=src;title.textContent=label;count.textContent=(current+1)+' / '+buttons.length;
+  buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===current)));
+ }
+ buttons.forEach((button,i)=>button.addEventListener('click',()=>show(i)));
+ gallery.querySelectorAll('[data-admin-step]').forEach(button=>button.addEventListener('click',()=>show(current+Number(button.dataset.adminStep))));
+ gallery.addEventListener('keydown',event=>{
+  if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();show(current+(event.key==='ArrowRight'?1:-1));if(buttons.includes(document.activeElement))buttons[current].focus();}
+ });
+});
+
+// Scale the entire demo viewport uniformly, without cropping the interface.
+document.querySelectorAll('.format-single-demo .resident-demo').forEach(display=>{
+ const frame=display.querySelector('iframe');
+ const resize=()=>{frame.style.transform='scale('+(display.clientWidth/390)+')';};
+ new ResizeObserver(resize).observe(display);
+ resize();
+});

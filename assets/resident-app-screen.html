@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Unitly — Resident app</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>window.COMPANY_NAME = "Unitly";</script>
+<style>
+  :root{
+    --brand:#111111;
+    --brand-dark:#000000;
+    --brand-tint:#F2F2F2;
+    --brand-tint-2:#E3E3E3;
+    --black:#1B1C1B;
+    --white:#FFFFFF;
+    --g50:#FAFAF9;
+    --g100:#F2F2F1;
+    --g200:#E4E5E3;
+    --g300:#CDCEC9;
+    --g500:#84867F;
+    --g600:#6B6E68;
+    --g700:#4C4E49;
+    --font:-apple-system,"SF Pro Display","SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --nav-h:64px;
+    --safe-b:env(safe-area-inset-bottom,0px);
+    --safe-t:env(safe-area-inset-top,0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    font-family:var(--font);
+    color:var(--black);
+    background:var(--white);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--nav-h) + var(--safe-b) + 8px);
+  }
+  button,input,select,textarea{font-family:var(--font);}
+  button{cursor:pointer;}
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--brand); color:#fff;}
+
+  /* ===== Header (mobile: minimal, top-bar only) ===== */
+  header.site{
+    position:sticky; top:0; z-index:40; background:rgba(255,255,255,.94); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--g200);
+    padding-top:var(--safe-t);
+  }
+  .header-inner{
+    padding:12px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+  }
+  .logo-mark{height:28px; display:block;}
+  nav.main-nav{display:none;}
+  .header-right{display:flex; align-items:center; gap:10px;}
+  .apt-chip{font-size:11.5px; font-weight:700; color:var(--brand-dark); background:var(--brand-tint); border:1px solid var(--brand-tint-2); padding:5px 10px; border-radius:20px; white-space:nowrap;}
+  .apt-chip.parking-chip{color:var(--g700); background:var(--g100); border-color:var(--g200);}
+  .avatar{width:30px;height:30px;border-radius:50%; background:var(--g100); border:1px solid var(--g200); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--g700); flex:0 0 auto;}
+
+  /* ===== Bottom tab bar (mobile primary nav) ===== */
+  nav.tab-bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    display:flex; background:rgba(255,255,255,.96); backdrop-filter:blur(10px);
+    border-top:1px solid var(--g200);
+    padding:8px 6px calc(8px + var(--safe-b)) 6px;
+  }
+  .tab-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:none; border:none; color:var(--g500); font-size:10.5px; font-weight:700; padding:4px 2px;
+  }
+  .tab-item svg{width:22px; height:22px;}
+  .tab-item.active{color:var(--brand-dark);}
+
+  /* ===== Layout shell ===== */
+  main{padding:0 18px;}
+  .view{display:none;}
+  .view.active{display:block; animation:fadeUp .3s var(--ease);}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ===== Home hero ===== */
+  .hero{padding:24px 0 20px 0; border-bottom:1px solid var(--g200);}
+  .hero h1{font-size:26px; font-weight:800; letter-spacing:-0.015em; line-height:1.16; margin:0 0 10px 0;}
+  .hero .eyebrow{font-size:12.5px; font-weight:700; color:var(--brand-dark); margin:0 0 8px 0;}
+  .hero p.sub{font-size:14px; color:var(--g600); line-height:1.55; margin:0 0 20px 0;}
+  .hero-apt{border-top:2px solid var(--brand); padding-top:14px;}
+  .hero-apt .lbl{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--g500); font-weight:700; margin-bottom:5px;}
+  .hero-apt .num{font-size:18px; font-weight:800; letter-spacing:-0.01em;}
+  .hero-apt .addr{font-size:12.5px; color:var(--g600); margin-top:3px;}
+
+  /* ===== Quick action grid ===== */
+  .quick-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:20px 0; border-bottom:1px solid var(--g200);}
+  .quick-item{
+    text-align:left; background:none; border:1px solid var(--g200); border-radius:12px; padding:16px 14px;
+    display:flex; flex-direction:column; gap:8px; transition:border-color .15s var(--ease), background .15s var(--ease);
+  }
+  .quick-item:active{background:var(--g50);}
+  .quick-item .qi-ic{width:26px;height:26px; color:var(--brand-dark);}
+  .quick-item .qi-label{font-size:13.5px; font-weight:700;}
+  .quick-item .qi-note{font-size:11.5px; color:var(--g500); line-height:1.3;}
+
+  /* ===== Section headers ===== */
+  .section{padding:28px 0; border-bottom:1px solid var(--g200);}
+  .section:last-child{border-bottom:none;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px;}
+  .section-head h2{font-size:17px; font-weight:800; letter-spacing:-0.01em; margin:0;}
+  .section-head a.see-all{font-size:12.5px; font-weight:700; color:var(--brand-dark); border-bottom:1px solid var(--brand-tint-2); white-space:nowrap;}
+
+  /* ===== Request list rows ===== */
+  .req-row{
+    display:grid; grid-template-columns:18px 1fr auto; align-items:center; gap:12px;
+    padding:14px 0; border-bottom:1px solid var(--g200); cursor:pointer; width:100%; background:none; border-left:none; border-right:none; border-top:none; text-align:left;
+  }
+  .req-row:last-child{border-bottom:none;}
+  .req-dot{width:7px;height:7px;border-radius:50%; background:var(--g300); flex:0 0 auto;}
+  .req-dot.live{background:var(--brand);}
+  .req-main{min-width:0;}
+  .req-main .req-cat{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--g500); font-weight:700;}
+  .req-main .req-title{font-size:13.5px; font-weight:600; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .req-main .req-when{font-size:11.5px; color:var(--g500); margin-top:2px;}
+  .req-status{font-size:11px; font-weight:700; white-space:nowrap; text-align:right;}
+  .req-status.live{color:var(--brand-dark);}
+  .req-status.done{color:var(--g500);}
+  .req-status.new{color:var(--black);}
+
+  .empty-note{padding:24px 0; color:var(--g500); font-size:13.5px;}
+
+  /* ===== Services list ===== */
+  .svc-list{display:flex; flex-direction:column;}
+  .svc-row{
+    display:flex; align-items:center; gap:14px; padding:16px 0; border-bottom:1px solid var(--g200);
+    background:none; border-left:none; border-right:none; border-top:none; width:100%; text-align:left;
+  }
+  .svc-row:first-child{padding-top:0;}
+  .svc-row:last-child{border-bottom:none;}
+  .svc-ic{width:40px;height:40px; flex:0 0 auto; color:var(--brand-dark); display:flex; align-items:center; justify-content:center; border:1px solid var(--g200); border-radius:10px;}
+  .svc-info{flex:1; min-width:0;}
+  .svc-info .svc-name{font-size:14.5px; font-weight:700;}
+  .svc-info .svc-desc{font-size:12px; color:var(--g600); margin-top:2px;}
+  .svc-arrow{color:var(--g500); flex:0 0 auto;}
+  .svc-price{font-size:13px; font-weight:800; color:var(--brand-dark); flex:0 0 auto; margin-right:6px;}
+  .svc-price-note{display:inline-block; background:var(--brand-tint); border:1px solid var(--brand-tint-2); color:var(--brand-dark); border-radius:12px; padding:8px 14px; font-size:13px; margin:2px 0 14px 0;}
+
+  /* ===== Building shortcuts ===== */
+  .building-row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .building-item{padding:16px 14px; border:1px solid var(--g200); border-radius:12px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:9px;}
+  .building-item svg{color:var(--brand-dark); flex:0 0 auto;}
+
+  /* ===== Form (request creation) ===== */
+  .form-shell{padding:24px 0;}
+  .back-link{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--g600); margin-bottom:16px;}
+  .form-card{border:1px solid var(--g200); border-radius:16px; padding:22px;}
+  .form-card h1{font-size:20px; font-weight:800; letter-spacing:-0.01em; margin:0 0 6px 0;}
+  .form-card p.lead{font-size:13px; color:var(--g600); margin:0 0 22px 0; line-height:1.5;}
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:12px; font-weight:700; color:var(--g700); margin-bottom:7px;}
+  .field input, .field textarea, .field select{
+    width:100%; border:1.4px solid var(--g200); background:var(--g50); border-radius:10px; padding:12px 14px;
+    font-size:14px; color:var(--black);
+  }
+  .field textarea{min-height:100px; resize:vertical;}
+  .field input:focus, .field textarea:focus, .field select:focus{outline:none; border-color:var(--brand); background:var(--white);}
+  .field input:disabled{background:var(--g100); color:var(--g600); cursor:not-allowed;}
+  .pill-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .pill{border:1.4px solid var(--g200); background:var(--white); border-radius:20px; padding:8px 14px; font-size:12.5px; font-weight:600; color:var(--g700);}
+  .pill.active{background:var(--brand); border-color:var(--brand); color:#fff;}
+  .attach-row{display:flex; gap:10px;}
+  .attach-box{flex:1; border:1.6px dashed var(--g300); border-radius:10px; padding:16px 8px; text-align:center; color:var(--g500); font-size:11.5px; font-weight:600;}
+
+  .btn{
+    border-radius:10px; border:none; padding:14px 20px; font-size:14px; font-weight:700;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  }
+  .btn-primary{background:var(--brand); color:#fff;}
+  .btn-primary:active{background:var(--brand-dark);}
+  .btn-secondary{background:transparent; color:var(--black); border:1.4px solid var(--g300);}
+
+  /* ===== Login (full-screen, no header/tab-bar chrome) ===== */
+  body.login-mode{padding-bottom:0;}
+  /* The login screen already pads itself (.login-wrap), so drop <main>'s own side padding here —
+     it was shaving a further 36px off a phone-wide card that has little room to spare. */
+  body.login-mode main{padding:0;}
+  .login-wrap{min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:32px 20px; background:var(--brand-tint);}
+  .login-card{width:100%; max-width:380px; background:#fff; border:1px solid var(--g200); border-radius:18px; padding:32px 24px;}
+  .login-logo{height:36px; margin-bottom:28px; display:block;}
+  .login-card h1{font-size:21px; font-weight:800; margin:0 0 6px 0;}
+  .login-card p.sub{font-size:13px; color:var(--g600); margin:0 0 24px 0; line-height:1.5;}
+  .login-forgot{display:block; text-align:right; font-size:12px; font-weight:700; color:var(--brand-dark); margin:-8px 0 20px 0;}
+  .login-note{font-size:11.5px; color:var(--g500); line-height:1.55; margin-top:20px; padding-top:18px; border-top:1px solid var(--g200);}
+
+  /* ===== Confirmation ===== */
+  .confirm-shell{padding:56px 0; text-align:center;}
+  .confirm-mark{width:52px;height:52px;border-radius:50%; background:var(--brand); display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto;}
+  .confirm-shell h1{font-size:21px; font-weight:800; margin:0 0 10px 0;}
+  .confirm-shell p{font-size:13.5px; color:var(--g600); line-height:1.6; margin:0 0 26px 0;}
+  .confirm-actions{display:flex; flex-direction:column; gap:10px;}
+
+  /* ===== Request detail ===== */
+  .detail-shell{padding:24px 0;}
+  .detail-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:22px;}
+  .detail-head h1{font-size:19px; font-weight:800; margin:6px 0 4px 0;}
+  .detail-head .meta{font-size:12px; color:var(--g500);}
+  .t-row{display:flex; gap:12px;}
+  .t-dotcol{display:flex; flex-direction:column; align-items:center;}
+  .t-dot{width:9px;height:9px;border-radius:50%; margin-top:4px;}
+  .t-line{width:1.4px; flex:1; background:var(--g200); min-height:24px;}
+  .t-body{padding-bottom:20px;}
+  .t-title{font-size:13.5px; font-weight:700;}
+  .t-when{font-size:12px; color:var(--g500); margin-top:2px;}
+
+  .segment{display:inline-flex; background:var(--g100); border-radius:10px; padding:3px; gap:2px; margin-bottom:20px; width:100%;}
+  .segment button{flex:1; border:none; background:transparent; padding:9px 10px; border-radius:8px; font-size:12.5px; font-weight:700; color:var(--g600);}
+  .segment button.active{background:#fff; color:var(--black); box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+  /* ===== Profile ===== */
+  .profile-head{text-align:center; padding:24px 0 8px 0;}
+  .profile-head .av{width:64px;height:64px;border-radius:50%; background:var(--brand-tint); border:1px solid var(--brand-tint-2); color:var(--brand-dark); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; margin:0 auto 12px auto;}
+  .profile-head .name{font-size:17px; font-weight:800;}
+  .profile-head .apt{font-size:12.5px; color:var(--g500); margin-top:2px;}
+  .profile-list{margin-top:8px; max-width:420px; margin-left:auto; margin-right:auto;}
+  .profile-row{display:flex; align-items:center; gap:12px; padding:0; min-height:64px; box-sizing:border-box; border-bottom:1px solid var(--g200); width:100%; background:none; border-left:none; border-right:none; border-top:none; text-align:left;}
+  .profile-row:last-child{border-bottom:none;}
+  .profile-row .pr-ic{width:34px;height:34px; border:1px solid var(--g200); border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--brand-dark); flex:0 0 auto;}
+  .profile-row > span{font-size:13.5px; font-weight:600; flex:1;}
+
+  /* ===== Footer (desktop only, hidden on mobile to save space above tab bar) ===== */
+  footer.site{display:none;}
+
+  /* ===== App shell below 900px: tab bar and header stay put, only <main> scrolls =====
+     Before, the whole page scrolled and the tab bar was merely pinned on top of it, so the page's
+     scrollbar ran the full height of the window and slid under the tab bar. Now the scrollable area
+     ends exactly where the tab bar begins (desktop, >=900px, keeps the normal page scroll). */
+  @media (max-width:899px){
+    html, body{height:100%; overflow:hidden;}
+    body{display:flex; flex-direction:column; height:100vh; height:100dvh; padding-bottom:0;}
+    header.site{position:relative; flex:0 0 auto;}
+    main{flex:1 1 auto; min-height:0; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; padding-bottom:20px;}
+    body.login-mode main{padding-bottom:0;}
+    nav.tab-bar{position:relative; left:auto; right:auto; bottom:auto; flex:0 0 auto;}
+  }
+
+  /* =========================================================
+     DESKTOP ENHANCEMENT — everything above is the mobile base
+     ========================================================= */
+  @media (min-width:900px){
+    :root{--nav-h:0px;}
+    body{padding-bottom:0;}
+    main{max-width:1180px; margin:0 auto; padding:0 32px;}
+
+    header.site{padding-top:0;}
+    .header-inner{max-width:1180px; margin:0 auto; padding:14px 32px;}
+    .logo-mark{height:38px;}
+    nav.main-nav{display:flex; gap:32px; align-items:center;}
+    nav.main-nav a{font-size:14px; font-weight:600; color:var(--g600); padding:6px 0; border-bottom:2px solid transparent; transition:color .15s var(--ease), border-color .15s var(--ease);}
+    nav.main-nav a:hover{color:var(--black);}
+    nav.main-nav a.active{color:var(--black); border-color:var(--brand);}
+    .header-right{gap:16px;}
+    .apt-chip{font-size:12.5px; padding:6px 12px;}
+    .avatar{width:34px;height:34px; font-size:12px;}
+
+    nav.tab-bar{display:none;}
+
+    .hero{padding:56px 0 40px 0; display:grid; grid-template-columns:1.3fr 1fr; gap:48px; align-items:end;}
+    .hero h1{font-size:38px; margin-bottom:12px;}
+    .hero .eyebrow{font-size:13px;}
+    .hero p.sub{font-size:15.5px; max-width:440px; margin-bottom:0;}
+    .hero-apt{border-top:none; border-left:2px solid var(--brand); padding-top:0; padding-left:20px;}
+    .hero-apt .num{font-size:22px;}
+    .hero-apt .addr{font-size:13.5px;}
+
+    .quick-row{grid-template-columns:repeat(4,1fr); gap:0; padding:0; display:flex;}
+    .quick-item{flex:1; border:none; border-right:1px solid var(--g200); border-radius:0; padding:26px 16px;}
+    .quick-item:last-child{border-right:none;}
+    .quick-item:hover{background:var(--g50);}
+    .quick-item .qi-ic{width:30px;height:30px;}
+    .quick-item .qi-label{font-size:14px;}
+    .quick-item .qi-note{font-size:12px;}
+
+    .section{padding:44px 0;}
+    .section-head{margin-bottom:22px;}
+    .section-head h2{font-size:20px;}
+    .section-head a.see-all{font-size:13px;}
+
+    .req-row{grid-template-columns:22px 1fr auto auto; gap:16px; padding:16px 0;}
+    .req-row:hover .req-title{color:var(--brand-dark);}
+    .req-main .req-title{font-size:14.5px; white-space:normal;}
+    .req-main .req-when{display:none;}
+    .req-when-col{display:block;}
+
+    .svc-row{gap:18px; padding:20px 0;}
+    .svc-ic{width:44px;height:44px; border-radius:10px;}
+    .svc-row:hover .svc-ic{border-color:var(--brand); background:var(--brand-tint);}
+    .svc-info .svc-name{font-size:16px;}
+    .svc-info .svc-desc{font-size:13px;}
+    .svc-arrow{transition:transform .15s var(--ease);}
+    .svc-row:hover .svc-arrow{transform:translateX(3px); color:var(--brand-dark);}
+
+    .building-row{grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--g200); border-radius:12px; overflow:hidden;}
+    .building-item{border:none; border-right:1px solid var(--g200); border-radius:0; padding:18px 20px;}
+    .building-item:last-child{border-right:none;}
+    .building-item:hover{background:var(--g50);}
+
+    .form-shell{max-width:640px; margin:0 auto; padding:48px 0;}
+    .form-shell .back-link{margin-bottom:20px;}
+    .form-card{padding:36px;}
+    .form-card h1{font-size:24px;}
+    .form-card p.lead{font-size:14px; margin-bottom:28px;}
+    .btn{width:auto; padding:13px 22px;}
+    .btn-primary{width:100%;}
+    .btn-secondary{width:100%;}
+
+    .confirm-shell{max-width:520px; margin:0 auto; padding:90px 0;}
+    .confirm-shell h1{font-size:24px;}
+    .confirm-shell p{font-size:14.5px; margin-bottom:30px;}
+    .confirm-actions{max-width:280px; margin:0 auto;}
+
+    .detail-shell{max-width:760px; margin:0 auto; padding:44px 0;}
+    .detail-head h1{font-size:22px;}
+    .detail-head .meta{font-size:13px;}
+
+    .segment{width:auto;}
+    .segment button{flex:none; padding:8px 18px;}
+
+    .profile-head{padding:32px 0 8px 0;}
+    .profile-list{max-width:420px; margin:0 auto;}
+
+    footer.site{display:block; border-top:1px solid var(--g200); margin-top:20px;}
+    .footer-inner{max-width:1180px; margin:0 auto; padding:28px 32px; display:flex; align-items:center; justify-content:space-between; gap:20px;}
+    .footer-inner .fl{display:flex; align-items:center; gap:12px;}
+    .footer-inner img{height:22px; opacity:.7;}
+    .footer-inner span{font-size:12px; color:var(--g500);}
+    .footer-links{display:flex; gap:20px;}
+    .footer-links a{font-size:12.5px; color:var(--g600); font-weight:600;}
+    .footer-links a:hover{color:var(--black);}
+  }
+
+  /* ===== Language switcher ===== */
+  .login-top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:28px;}
+  .login-top .login-logo{margin-bottom:0;}
+  .lang-menu-wrap{position:relative; display:inline-block;}
+  .lang-trigger{display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 12px; border:1.4px solid var(--g200); background:var(--white); border-radius:20px; font-size:13px; font-weight:700; color:var(--black); cursor:pointer; white-space:nowrap;}
+  .lang-trigger svg{color:var(--g600); flex:0 0 auto;}
+  .lang-trigger[aria-expanded="true"]{border-color:var(--brand);}
+  .lang-menu{position:absolute; right:0; top:calc(100% + 8px); min-width:184px; background:var(--white); border:1px solid var(--g200); border-radius:16px; box-shadow:0 14px 34px rgba(0,0,0,.14); padding:6px; z-index:60;}
+  .lang-opt{display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; padding:11px 12px; border:none; background:none; border-radius:10px; font-size:14px; font-weight:600; color:var(--black); text-align:left; cursor:pointer;}
+  .lang-opt:hover{background:var(--g100);}
+  .lang-opt.active{background:var(--brand-tint); color:var(--brand-dark); font-weight:800;}
+  .icon-btn{width:34px;height:34px;border-radius:50%; border:1px solid var(--g200); background:none; display:flex; align-items:center; justify-content:center; color:var(--g600); flex:0 0 auto;}
+  .desktop-lang{display:none;}
+  @media (min-width:900px){
+    .desktop-lang{display:flex; gap:4px; background:var(--g100); border-radius:10px; padding:3px;}
+    .desktop-lang button{border:none; background:transparent; padding:7px 10px; border-radius:7px; font-size:11.5px; font-weight:800; color:var(--g600);}
+    .desktop-lang button.active{background:#fff; color:var(--black); box-shadow:0 1px 3px rgba(0,0,0,.08);}
+    .mobile-lang-btn{display:none;}
+  }
+
+  /* ===== Login buttons: same size in every language =====
+     Labels differ a lot in length ("Sign in" vs "Iniciar sesión", "Forgot password?" vs
+     "¿Olvidaste tu contraseña?"). Fixed height + columns sized to the real label lengths, so the
+     buttons never change size between languages. If a label ever doesn't fit on one line (very
+     narrow phone, wider system font) it wraps INSIDE the same fixed-height button instead of
+     growing it. Below 370px the three buttons stack. */
+  .login-actions{display:grid; grid-template-columns:minmax(0,.36fr) minmax(0,.64fr); gap:10px;}
+  .login-actions .btn, .login-first{height:44px; padding:0 8px; font-size:12px; line-height:1.15; text-align:center; width:100%;}
+  .login-first{margin-top:10px;}
+  @media (max-width:370px){ .login-actions{grid-template-columns:1fr;} }
+
+
+  /* ===== Amenities: information-only rows and the booking screen ===== */
+  .svc-row-info{cursor:default;}
+  .svc-row-info:hover .svc-ic{border-color:var(--g200); background:none;}
+  .svc-note{display:inline-block; margin-top:7px; font-size:11.5px; font-weight:700; color:var(--g700); background:var(--g100); border:1px solid var(--g200); border-radius:20px; padding:4px 11px;}
+  .amen-meta{display:inline-block; font-size:12px; font-weight:700; color:var(--g700); background:var(--g100); border-radius:20px; padding:4px 11px; margin:0 0 20px 0;}
+  .amen-muted{font-size:12.5px; color:var(--g600); margin:0; line-height:1.5;}
+  .slot-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;}
+  .slot-grid.loading{opacity:.55;}
+  .slot{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-height:42px; border:1.4px solid var(--g200); background:var(--white); border-radius:12px; padding:6px 0; font-size:13px; font-weight:700; color:var(--g700); cursor:pointer;}
+  .slot span{font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--g500);}
+  .slot.active{background:var(--brand); border-color:var(--brand); color:#fff;}
+  .slot.full, .slot:disabled{background:var(--g100); border-style:dashed; color:var(--g500); cursor:not-allowed;}
+  @media (max-width:340px){ .slot-grid{grid-template-columns:repeat(3, 1fr);} }
+
+  .btn-cancel-booking{flex:0 0 auto; border:1.4px solid var(--g200); background:var(--white); border-radius:20px; padding:8px 14px; font-size:12px; font-weight:700; color:#8a1f1f; cursor:pointer;}
+  .amen-notice{margin:0 0 14px 0; padding:11px 14px; border-radius:12px; background:var(--brand-tint); border:1px solid var(--brand-tint-2); color:var(--brand-dark); font-size:13px; font-weight:700;}
+
+  .logo-wordmark{font-weight:900; font-size:21px; letter-spacing:-.03em; color:var(--black); text-decoration:none;}
+  .login-wordmark{font-weight:900; font-size:28px; letter-spacing:-.03em; color:var(--black); margin-bottom:28px;}
+  .login-top .login-wordmark{margin-bottom:0;}
+  .demo-toast{position:fixed; left:50%; bottom:calc(var(--nav-h) + 20px); transform:translate(-50%,12px); background:#111; color:#fff; padding:11px 16px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; transition:all .25s; z-index:9999; max-width:86%; text-align:center;}
+  .demo-toast.show{opacity:1; transform:translate(-50%,0);}
+
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="header-inner">
+    <a href="#" data-go="home" class="logo-wordmark">Unitly</a>
+    <nav class="main-nav" id="mainNav"></nav>
+    <div class="header-right">
+      <span class="apt-chip" id="aptChip">—</span>
+      <span class="apt-chip parking-chip" id="parkingChip" data-go="guestParking" style="cursor:pointer;">—</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="viewRoot"></div>
+</main>
+
+<nav class="tab-bar" id="tabBar"></nav>
+
+<footer class="site">
+  <div class="footer-inner">
+    <div class="fl">
+      <span id="footerRights">© 2026 Unitly</span>
+    </div>
+    <div class="footer-links" id="footerLinks"></div>
+  </div>
+</footer>
+
+<script>
+// i18n.js — UI translation dictionaries (FR/EN/UK/ES).
+// This is pure UI copy, no resident/request data — that comes from the API.
+
+const I18N = {
+fr:{
+  nav:{home:'Accueil', services:'Services', requests:'Mes demandes', profile:'Profil'},
+  aptPrefix:'Appt.', parkingPrefix:'Place',
+  login:{title:'Connexion', subtitle:'Utilisez les identifiants fournis par votre gestionnaire.',
+    email:'Identifiant', emailPh:'jean.carriere@email.com', password:'Mot de passe', passwordPh:'••••••••',
+    signIn:'Se connecter', forgot:'Mot de passe oublié ?', firstTimeBtn:'Première visite ? Créez votre mot de passe',
+    note:"Vos identifiants sont créés par la gestion de votre résidence via The Office. Vous n'avez pas de compte ? Contactez votre gestionnaire."},
+  firstTime:{title:'Première visite', subtitle:'Entrez votre e-mail pour vérifier votre compte et créer votre mot de passe.',
+    continueBtn:'Continuer', backToLogin:'← Retour à la connexion',
+    sentMessage:"Si un compte existe pour cet e-mail et attend d'être activé, un lien vient de lui être envoyé. Ouvrez-le pour créer votre mot de passe.",
+    notFound:"Aucun compte n'existe pour cet e-mail. Contactez votre gestionnaire.",
+    alreadyActive:'Un mot de passe existe déjà pour ce compte. Utilisez plutôt la connexion.'},
+  forgotPassword:{title:'Mot de passe oublié', subtitle:"Entrez votre e-mail — si un compte existe, nous vous enverrons un nouveau mot de passe temporaire.",
+    sentMessage:"Si un compte existe pour cet e-mail, un nouveau mot de passe temporaire vient de lui être envoyé. Vous devrez le changer à votre prochaine connexion.", submitBtn:'Envoyer'},
+  createPassword:{title:'Créer votre mot de passe', subtitle:(email)=>`Compte : ${email}`,
+    passwordLabel:'Nouveau mot de passe', confirmLabel:'Confirmer le mot de passe', submitBtn:'Créer et se connecter',
+    mismatch:'Les mots de passe ne correspondent pas.', tooShort:'Le mot de passe doit contenir au moins 8 caractères.'},
+  home:{greeting:'Bonjour,', title1:'Tout ce qui concerne', title2:'votre logement, ici.',
+    sub:'Suivez vos demandes, réservez des services et restez informé de la vie de votre résidence.',
+    aptLabel:'Votre appartement', buildingWord:'Bâtiment', addr:'12 rue des Lilas, Lyon',
+    qReqTitle:'Faire une demande', qReqNote:'Panne, réparation, entretien',
+    qCleanTitle:'Ménage', qCleanNote:'Réserver un passage',
+    qMoveTitle:'Déménagement', qMoveNote:'Demander une assistance',
+    qParkingTitle:'Parking invités', qParkingNote:'Réserver une place visiteur',
+    qPayTitle:'Paiements', qPayNote:'Solde et historique',
+    recentTitle:'Mes demandes récentes', seeAll:'Tout voir →',
+    buildingTitle:'Votre résidence', news:'Actualités', amenities:'Équipements', documents:'Documents', management:'Gestion'},
+  services:{title:'Services', subtitle:"Que pouvons-nous faire pour vous aujourd'hui ?",
+    list:{plumbing:{name:'Plomberie', desc:'Fuite, canalisation bouchée, robinetterie.'},
+      electrical:{name:'Électricité', desc:"Panne, prise, installation d'éclairage."},
+      cleaning:{name:'Ménage', desc:'Réservez un ménage professionnel.'},
+      moving:{name:'Déménagement', desc:"Demandez de l'aide pour votre déménagement."},
+      repairs:{name:'Réparations', desc:'Entretien général de votre appartement.'},
+      other:{name:'Autre demande', desc:'Un autre besoin ? Écrivez-nous.'}}},
+  form:{priceLabel:'Prix :',back:'← Retour aux services', lead:'Décrivez le problème, nous vous mettons en relation avec un technicien.',
+    descLabel:'Description du problème', descPh:"Ex. : l'évier de la cuisine fuit sous le meuble depuis hier soir.",
+    photoLabel:'Photo (facultatif)', addPhoto:'Ajouter une photo', addVideo:'Ajouter une vidéo',
+    dateLabel:'Date souhaitée', dateOptions:["Aujourd'hui",'Demain','Cette semaine'],
+    timeLabel:'Créneau', timeOptions:['9h – 12h','14h – 17h','17h – 19h'],
+    submitBtn:'Envoyer la demande'},
+  confirm:{myBookings:'Mes réservations', bookingTitle:'Réservation confirmée', bookingBody:'Votre réservation a bien été enregistrée. La gestion la voit et vous contactera si quelque chose change.', title:'Votre demande a été envoyée',
+    body:"Nous vous informerons dès qu'un technicien sera assigné à la demande #2049. Vous pouvez suivre son avancement à tout moment.",
+    view:'Voir mes demandes', back:"Retour à l'accueil"},
+  requests:{title:'Mes demandes', filterAll:'Toutes', filterLive:'En cours', filterDone:'Terminées', empty:'Aucune demande dans cette catégorie.'},
+  statusLabels:{submitted:'Envoyée', reviewed:'Examinée', assigned:'Assignée', scheduled:'Planifiée', completed:'Terminée'},
+  categoryLabels:{plumbing:'Plomberie', electrical:'Électricité', cleaning:'Ménage', moving:'Déménagement', repairs:'Réparations', other:'Autre'},
+  
+  detail:{back:'← Mes demandes', catLine:'Plomberie · Demande #2048', title:'La cuisine — évier qui fuit', meta:'Créée le 24 août · Appartement 402', status:'En cours',
+    steps:[['Demande envoyée','24 août, 9h12',true],['Examinée par la gestion','24 août, 11h40',true],['Technicien assigné','25 août, 8h05',true],['Travaux terminés','En attente',false]],
+    messageBtn:'Écrire à la gestion', attachmentsTitle:'Photos et vidéos', noAttachments:'Aucun fichier joint.', scheduledFor:'Visite prévue le'},
+  profile:{aptPrefix:'Appartement', personalInfo:'Informations personnelles', payments:'Paiements',
+    notifications:'Notifications', help:'Aide & support', signOut:'Se déconnecter', languageTitle:'Langue'},
+  newsList:[
+    {tag:'Avis', title:"Maintenance de l'ascenseur B ce week-end", body:"L'ascenseur B sera hors service samedi de 8h à 14h pour une maintenance programmée.", date:'21 août 2026'},
+    {tag:'Actualité', title:'Nouveau salon sur le toit ouvert', body:'Le salon rénové sur le toit est ouvert tous les jours de 8h à 22h.', date:'18 août 2026'},
+    {tag:'Rappel', title:'Renouvellement du parking avant le 1er sept.', body:'Renouvelez votre carte de parking avant le 1er septembre pour éviter des frais.', date:'15 août 2026'},
+  ],
+  newsDetail:{postedBy:'Publié par la gestion'},
+  amenitiesList:[
+    {name:'Salle de sport', hours:'6h00 – 23h00'},
+    {name:'Salle de réception', hours:'Sur réservation'},
+    {name:'Espace barbecue', hours:'10h00 – 21h00'},
+    {name:'Salon', hours:'8h00 – minuit'},
+  ],
+  amenityBooking:{back:'← Équipements', lead:'Choisissez une date, une durée et un créneau libre.', dateLabel:'Date', durationLabel:'Durée', durations:['1 heure','2 heures','3 heures'], slotLabel:'Créneau', full:'Complet', noSlots:'Aucun créneau pour cette durée ce jour-là.', noFree:'Plus rien de libre ce jour-là : essayez une autre date.', pickSlot:'Choisissez un créneau.', taken:'Ce créneau vient d’être pris : choisissez-en un autre.', loading:'Chargement…', noReservation:'Aucune réservation nécessaire', myBookings:'Mes réservations', cancelBtn:'Annuler', cancelConfirm:'Annuler cette réservation ?', cancelled:'Réservation annulée.', confirmBtn:'Confirmer la réservation'},
+  guestParking:{title:'Parking visiteur', note:"Votre place attitrée n'est pas concernée — ceci réserve une place visiteur distincte.",
+    fromLabel:'Date de début', fromValue:'25 août 2026', toLabel:'Date de fin', toValue:'27 août 2026', stayNote:'Séjour de 3 jours',
+    guestNameLabel:'Nom du visiteur', guestNamePh:'Qui attendez-vous ?', plateLabel:"Plaque d'immatriculation", platePh:'ex. AB-123-CD', confirmBtn:'Réserver la place'},
+  documentsList:[
+    {name:'Contrat de bail', meta:'PDF · Signé en janvier 2026'},
+    {name:'Règlement intérieur', meta:'PDF · Mis à jour en juin 2026'},
+    {name:'Avis divers', meta:'3 documents'},
+  ],
+  payments:{title:'Paiements', pausedTitle:'Section en pause', pausedBody:"Le paiement en ligne (cartes, historique, factures) sera activé avec l'intégration de l'acquéreur de paiement. Cette section reste vide en attendant."},
+  documents:{downloadAll:'Tout télécharger (.zip)', downloadAllError:'Impossible de télécharger les documents.', types:{lease:'Contrat de bail', rules:'Règlement intérieur', rl31:'Relevé 31 (crédit d\u2019impôt)', other:'Autre'}},
+  management:{title:'Gestion', name:`${window.COMPANY_NAME} Gestion Immobilière`, hours:'Lun–Ven, 9h00 – 18h00', callBtn:'Appeler la gestion', sendBtn:'Envoyer un message', emergencyBtn:"Contact d'urgence"},
+  messages:{title:'Messages', bubbles:['Bonjour, quand puis-je attendre le technicien ?','Bonjour Jean ! Le technicien passera cet après-midi.'], placeholder:'Écrire un message'},
+  notifications:{title:'Notifications', items:[
+    ['drop','Visite plombier planifiée','Un technicien arrivera le 27 août à 10h00.','il y a 2 h'],
+    ['card','Rappel de paiement','Votre solde de septembre est dû dans 5 jours.','il y a 1 j'],
+    ['building','Actualité de la résidence','Maintenance de l\u2019ascenseur B ce week-end.','il y a 2 j'],
+    ['message','Message de la gestion','Votre demande #2041 a été examinée.','il y a 3 j'],
+  ]},
+  personalInfo:{title:'Informations personnelles', lockedNote:'Le nom, l\u2019appartement et la place de parking sont gérés par votre gestionnaire via The Office. Vous pouvez mettre à jour vos coordonnées ci-dessous.', fullNameLabel:'Nom complet', emailLabel:'E-mail', phoneLabel:'Téléphone', aptLabel:'Appartement', parkingLabel:'Place de parking', saveBtn:'Enregistrer les modifications',
+    pwdTitle:'Changer le mot de passe', pwdCurrent:'Mot de passe actuel', pwdNew:'Nouveau mot de passe', pwdConfirm:'Confirmer le nouveau mot de passe', pwdSaveBtn:'Mettre à jour le mot de passe', pwdSaved:'Mot de passe mis à jour.', pwdMismatch:'Les nouveaux mots de passe ne correspondent pas.', pwdTooShort:'Le nouveau mot de passe doit contenir au moins 8 caractères.', pwdAllRequired:'Tous les champs sont requis.', logoutEverywhereTitle:'Déconnexion de tous les appareils', logoutEverywhereNote:'Invalide immédiatement toute session active sur vos autres appareils — utile si vous avez perdu votre téléphone ou pensez que quelqu\u2019un d\u2019autre a accès à votre compte. Vous serez aussi déconnecté(e) ici.', logoutEverywhereBtn:'Se déconnecter de tous les appareils', logoutEverywhereConfirm:'Déconnecter tous les appareils, y compris celui-ci ?'},
+  footer:{rights:`© 2026 ${window.COMPANY_NAME}`, privacy:'Confidentialité', terms:'Conditions', contact:'Contact'},
+},
+en:{
+  nav:{home:'Home', services:'Services', requests:'My Requests', profile:'Profile'},
+  aptPrefix:'Apt.', parkingPrefix:'Spot',
+  login:{title:'Sign in', subtitle:'Use the credentials provided by your property manager.',
+    email:'Username', emailPh:'john.carriere@email.com', password:'Password', passwordPh:'••••••••',
+    signIn:'Sign in', forgot:'Forgot password?', firstTimeBtn:'First time here? Create your password',
+    note:"Your login is created by your building management through The Office. No account? Contact your property manager."},
+  firstTime:{title:'First time here', subtitle:'Enter your email to verify your account and create your password.',
+    continueBtn:'Continue', backToLogin:'← Back to sign in',
+    sentMessage:'If an account exists for this email and is waiting to be activated, a link was just sent to it. Open it to create your password.',
+    notFound:'No account exists for this email. Contact your property manager.',
+    alreadyActive:'A password already exists for this account. Please sign in instead.'},
+  forgotPassword:{title:'Forgot password', subtitle:'Enter your email — if an account exists, we\u2019ll send a new temporary password to it.',
+    sentMessage:'If an account exists for this email, a new temporary password was just sent to it. You\u2019ll need to change it on your next sign-in.', submitBtn:'Send'},
+  createPassword:{title:'Create your password', subtitle:(email)=>`Account: ${email}`,
+    passwordLabel:'New password', confirmLabel:'Confirm password', submitBtn:'Create and sign in',
+    mismatch:'Passwords do not match.', tooShort:'Password must be at least 8 characters.'},
+  home:{greeting:'Good morning,', title1:'Everything about', title2:'your home, in one place.',
+    sub:'Track your requests, book services, and stay informed about your building.',
+    aptLabel:'Your apartment', buildingWord:'Building', addr:'12 Rue des Lilas, Lyon',
+    qReqTitle:'Request Service', qReqNote:'Repair, maintenance, issue',
+    qCleanTitle:'Cleaning', qCleanNote:'Book a visit',
+    qMoveTitle:'Moving', qMoveNote:'Request assistance',
+    qParkingTitle:'Guest Parking', qParkingNote:'Reserve a visitor spot',
+    qPayTitle:'Payments', qPayNote:'Balance and history',
+    recentTitle:'Recent requests', seeAll:'See all →',
+    buildingTitle:'Your building', news:'News', amenities:'Amenities', documents:'Documents', management:'Management'},
+  services:{title:'Services', subtitle:'What can we help you with today?',
+    list:{plumbing:{name:'Plumbing', desc:'Leaks, clogged pipes, fixtures.'},
+      electrical:{name:'Electrical', desc:'Outages, outlets, light fixtures.'},
+      cleaning:{name:'Cleaning', desc:'Book a professional cleaning.'},
+      moving:{name:'Moving', desc:'Request help with your move.'},
+      repairs:{name:'Repairs', desc:'General upkeep for your apartment.'},
+      other:{name:'Other request', desc:'Something else? Let us know.'}}},
+  form:{priceLabel:'Price:',back:'← Back to services', lead:"Describe the issue and we'll connect you with a technician.",
+    descLabel:'Description of the issue', descPh:'E.g. the kitchen sink has been leaking under the cabinet since last night.',
+    photoLabel:'Photo (optional)', addPhoto:'Add photo', addVideo:'Add video',
+    dateLabel:'Preferred date', dateOptions:['Today','Tomorrow','This week'],
+    timeLabel:'Time slot', timeOptions:['9 AM – 12 PM','2 PM – 5 PM','5 PM – 7 PM'],
+    submitBtn:'Submit request'},
+  confirm:{myBookings:'My bookings', bookingTitle:'Booking confirmed', bookingBody:'Your booking has been saved. Management can see it and will contact you if anything changes.', title:'Your request has been sent',
+    body:"We'll notify you as soon as a technician is assigned to request #2049. You can track its progress at any time.",
+    view:'View my requests', back:'Back to home'},
+  requests:{title:'My Requests', filterAll:'All', filterLive:'Active', filterDone:'Completed', empty:'No requests in this category.'},
+  statusLabels:{submitted:'Submitted', reviewed:'Reviewed', assigned:'Assigned', scheduled:'Scheduled', completed:'Completed'},
+  categoryLabels:{plumbing:'Plumbing', electrical:'Electrical', cleaning:'Cleaning', moving:'Moving', repairs:'Repairs', other:'Other'},
+  
+  detail:{back:'← My requests', catLine:'Plumbing · Request #2048', title:'Kitchen — sink is leaking', meta:'Created Aug 24 · Apartment 402', status:'In progress',
+    steps:[['Request submitted','Aug 24, 9:12 AM',true],['Reviewed by management','Aug 24, 11:40 AM',true],['Technician assigned','Aug 25, 8:05 AM',true],['Work completed','Pending',false]],
+    messageBtn:'Message management', attachmentsTitle:'Photos & videos', noAttachments:'No files attached.', scheduledFor:'Visit scheduled for'},
+  profile:{aptPrefix:'Apartment', personalInfo:'Personal information', payments:'Payments',
+    notifications:'Notifications', help:'Help & support', signOut:'Sign out', languageTitle:'Language'},
+  newsList:[
+    {tag:'Notice', title:'Elevator B maintenance this weekend', body:'Elevator B will be out of service Saturday 8AM–2PM for scheduled maintenance.', date:'Aug 21, 2026'},
+    {tag:'News', title:'New rooftop lounge now open', body:'The redesigned rooftop lounge is open daily from 8AM to 10PM.', date:'Aug 18, 2026'},
+    {tag:'Reminder', title:'Parking permit renewal due Sept 1', body:'Renew your parking permit before September 1 to avoid a late fee.', date:'Aug 15, 2026'},
+  ],
+  newsDetail:{postedBy:'Posted by management'},
+  amenitiesList:[
+    {name:'Gym', hours:'6:00 AM – 11:00 PM'},
+    {name:'Party room', hours:'By reservation'},
+    {name:'BBQ area', hours:'10:00 AM – 9:00 PM'},
+    {name:'Lounge', hours:'8:00 AM – 12:00 AM'},
+  ],
+  amenityBooking:{back:'← Amenities', lead:'Choose a date, how long, and a free time.', dateLabel:'Date', durationLabel:'Duration', durations:['1 hour','2 hours','3 hours'], slotLabel:'Time slot', full:'Full', noSlots:'No times fit this length on that day.', noFree:'Nothing free that day: try another date.', pickSlot:'Pick a time.', taken:'Someone just took that time: pick another.', loading:'Loading…', noReservation:'No reservation needed', myBookings:'My bookings', cancelBtn:'Cancel', cancelConfirm:'Cancel this booking?', cancelled:'Booking cancelled.', confirmBtn:'Confirm booking'},
+  guestParking:{title:'Guest parking', note:"Your assigned spot is not affected — this reserves a separate visitor spot.",
+    fromLabel:'Start date', fromValue:'August 25, 2026', toLabel:'End date', toValue:'August 27, 2026', stayNote:'3-day stay',
+    guestNameLabel:'Guest name', guestNamePh:'Who are you expecting?', plateLabel:'License plate', platePh:'e.g. ABC-1234', confirmBtn:'Reserve spot'},
+  documentsList:[
+    {name:'Lease agreement', meta:'PDF · Signed January 2026'},
+    {name:'Building rules', meta:'PDF · Updated June 2026'},
+    {name:'Notices', meta:'3 documents'},
+  ],
+  payments:{title:'Payments', pausedTitle:'Section on hold', pausedBody:'Online payment (cards, history, invoices) will be enabled once the payment acquirer is integrated. This section stays empty until then.'},
+  documents:{downloadAll:'Download all (.zip)', downloadAllError:'Could not download the documents.', types:{lease:'Lease agreement', rules:'House rules', rl31:'RL-31 tax slip', other:'Other'}},
+  management:{title:'Management', name:`${window.COMPANY_NAME} Gestion Immobilière`, hours:'Mon–Fri, 9:00 AM – 6:00 PM', callBtn:'Call management', sendBtn:'Send message', emergencyBtn:'Emergency contact'},
+  messages:{title:'Messages', bubbles:['Hello, when should I expect the technician?','Hi John! The technician will come this afternoon.'], placeholder:'Type a message'},
+  notifications:{title:'Notifications', items:[
+    ['drop','Plumbing visit scheduled','A technician will arrive Aug 27 at 10:00 AM.','2h ago'],
+    ['card','Payment reminder','Your September balance is due in 5 days.','1d ago'],
+    ['building','Building news','Elevator B maintenance this weekend.','2d ago'],
+    ['message','Message from management','Your request #2041 has been reviewed.','3d ago'],
+  ]},
+  personalInfo:{title:'Personal information', lockedNote:'Name, apartment, and parking spot are managed by your property manager through The Office. You can update your contact info below.', fullNameLabel:'Full name', emailLabel:'Email', phoneLabel:'Phone', aptLabel:'Apartment', parkingLabel:'Parking spot', saveBtn:'Save changes',
+    pwdTitle:'Change password', pwdCurrent:'Current password', pwdNew:'New password', pwdConfirm:'Confirm new password', pwdSaveBtn:'Update password', pwdSaved:'Password updated.', pwdMismatch:'New passwords do not match.', pwdTooShort:'New password must be at least 8 characters.', pwdAllRequired:'All fields are required.', logoutEverywhereTitle:'Sign out everywhere', logoutEverywhereNote:'Immediately invalidates any active session on your other devices — useful if you lost your phone or think someone else has access to your account. You\u2019ll be signed out here too.', logoutEverywhereBtn:'Sign out of all devices', logoutEverywhereConfirm:'Sign out of every device, including this one?'},
+  footer:{rights:`© 2026 ${window.COMPANY_NAME}`, privacy:'Privacy', terms:'Terms', contact:'Contact'},
+},
+uk:{
+  nav:{home:'Головна', services:'Послуги', requests:'Мої заявки', profile:'Профіль'},
+  aptPrefix:'Кв.', parkingPrefix:'Місце',
+  login:{title:'Вхід', subtitle:'Використовуйте дані, надані вашою управляючою компанією.',
+    email:'Логін', emailPh:'jean.carriere@email.com', password:'Пароль', passwordPh:'••••••••',
+    signIn:'Увійти', forgot:'Забули пароль?', firstTimeBtn:'Вперше тут? Створіть пароль',
+    note:"Ваш логін створює управляюча компанія через The Office. Немає акаунта? Зверніться до управителя."},
+  firstTime:{title:'Вперше тут', subtitle:'Введіть свою електронну пошту, щоб перевірити акаунт і створити пароль.',
+    continueBtn:'Продовжити', backToLogin:'← Назад до входу',
+    sentMessage:'Якщо акаунт із такою поштою існує й очікує активації, на нього щойно надіслано посилання. Відкрийте його, щоб створити пароль.',
+    notFound:'Акаунта з такою поштою не знайдено. Зверніться до управителя.',
+    alreadyActive:'Для цього акаунта вже створено пароль. Скористайтеся входом.'},
+  forgotPassword:{title:'Забули пароль', subtitle:'Введіть email — якщо акаунт існує, ми надішлемо на нього новий тимчасовий пароль.',
+    sentMessage:'Якщо акаунт із такою поштою існує, на нього щойно надіслано новий тимчасовий пароль. Його потрібно буде змінити під час наступного входу.', submitBtn:'Надіслати'},
+  createPassword:{title:'Створити пароль', subtitle:(email)=>`Акаунт: ${email}`,
+    passwordLabel:'Новий пароль', confirmLabel:'Підтвердіть пароль', submitBtn:'Створити і увійти',
+    mismatch:'Паролі не збігаються.', tooShort:'Пароль має містити щонайменше 8 символів.'},
+  home:{greeting:'Доброго ранку,', title1:'Усе про вашу квартиру', title2:'в одному місці.',
+    sub:'Стежте за заявками, замовляйте послуги та будьте в курсі новин вашого будинку.',
+    aptLabel:'Ваша квартира', buildingWord:'Корпус', addr:'вул. Ліліас, 12, Ліон',
+    qReqTitle:'Залишити заявку', qReqNote:'Несправність, ремонт, обслуговування',
+    qCleanTitle:'Прибирання', qCleanNote:'Замовити візит',
+    qMoveTitle:'Переїзд', qMoveNote:'Замовити допомогу',
+    qParkingTitle:'Гостьовий паркінг', qParkingNote:'Забронювати місце для гостя',
+    qPayTitle:'Платежі', qPayNote:'Баланс та історія',
+    recentTitle:'Останні заявки', seeAll:'Усі →',
+    buildingTitle:'Ваш будинок', news:'Новини', amenities:'Зручності', documents:'Документи', management:'Управління'},
+  services:{title:'Послуги', subtitle:'Чим ми можемо допомогти сьогодні?',
+    list:{plumbing:{name:'Сантехніка', desc:'Протікання, засмічення труб, змішувачі.'},
+      electrical:{name:'Електрика', desc:'Несправність, розетки, освітлення.'},
+      cleaning:{name:'Прибирання', desc:'Замовте професійне прибирання.'},
+      moving:{name:'Переїзд', desc:'Замовте допомогу з переїздом.'},
+      repairs:{name:'Ремонт', desc:'Загальне обслуговування квартири.'},
+      other:{name:'Інший запит', desc:'Щось інше? Напишіть нам.'}}},
+  form:{priceLabel:'Ціна:',back:'← До послуг', lead:"Опишіть проблему, і ми зв'яжемо вас із технічним спеціалістом.",
+    descLabel:'Опис проблеми', descPh:"Напр.: мийка на кухні протікає під шафою з учорашнього вечора.",
+    photoLabel:"Фото (необов'язково)", addPhoto:'Додати фото', addVideo:'Додати відео',
+    dateLabel:'Бажана дата', dateOptions:['Сьогодні','Завтра','Цього тижня'],
+    timeLabel:'Часовий проміжок', timeOptions:['9:00 – 12:00','14:00 – 17:00','17:00 – 19:00'],
+    submitBtn:'Надіслати заявку'},
+  confirm:{myBookings:'Мої бронювання', bookingTitle:'Бронювання підтверджено', bookingBody:'Ваше бронювання збережено. Управління бачить його й зв’яжеться з вами, якщо щось зміниться.', title:'Вашу заявку надіслано',
+    body:"Ми повідомимо вас, щойно технічного спеціаліста буде призначено на заявку №2049. Ви можете стежити за перебігом у будь-який час.",
+    view:'Переглянути мої заявки', back:'На головну'},
+  requests:{title:'Мої заявки', filterAll:'Усі', filterLive:'Активні', filterDone:'Завершені', empty:'У цій категорії заявок немає.'},
+  statusLabels:{submitted:'Надіслано', reviewed:'Розглянуто', assigned:'Призначено', scheduled:'Заплановано', completed:'Завершено'},
+  categoryLabels:{plumbing:'Сантехніка', electrical:'Електрика', cleaning:'Прибирання', moving:'Переїзд', repairs:'Ремонт', other:'Інше'},
+  
+  detail:{back:'← Мої заявки', catLine:'Сантехніка · Заявка №2048', title:'Кухня — протікає мийка', meta:'Створено 24 серпня · Квартира 402', status:'У роботі',
+    steps:[['Заявку надіслано','24 серп, 9:12',true],['Розглянуто управителем','24 серп, 11:40',true],['Призначено спеціаліста','25 серп, 8:05',true],['Роботу завершено','Очікується',false]],
+    messageBtn:'Написати управителю', attachmentsTitle:'Фото та відео', noAttachments:'Немає прикріплених файлів.', scheduledFor:'Візит призначено на'},
+  profile:{aptPrefix:'Квартира', personalInfo:'Особисті дані', payments:'Платежі',
+    notifications:'Сповіщення', help:'Допомога', signOut:'Вийти', languageTitle:'Мова'},
+  newsList:[
+    {tag:'Повідомлення', title:'Обслуговування ліфта B цими вихідними', body:'Ліфт B буде вимкнено в суботу з 8:00 до 14:00 для планового обслуговування.', date:'21 серпня 2026'},
+    {tag:'Новина', title:'Відкрито нову зону відпочинку на даху', body:'Оновлена зона відпочинку на даху відкрита щодня з 8:00 до 22:00.', date:'18 серпня 2026'},
+    {tag:'Нагадування', title:'Продовження паркувального дозволу до 1 вер.', body:'Продовжте паркувальний дозвіл до 1 вересня, щоб уникнути штрафу.', date:'15 серпня 2026'},
+  ],
+  newsDetail:{postedBy:'Опубліковано управителем'},
+  amenitiesList:[
+    {name:'Спортзал', hours:'6:00 – 23:00'},
+    {name:'Банкетна зала', hours:'За записом'},
+    {name:'Зона барбекю', hours:'10:00 – 21:00'},
+    {name:'Лаунж', hours:'8:00 – 00:00'},
+  ],
+  amenityBooking:{back:'← Зручності', lead:'Оберіть дату, тривалість і вільний час.', dateLabel:'Дата', durationLabel:'Тривалість', durations:['1 година','2 години','3 години'], slotLabel:'Час', full:'Зайнято', noSlots:'Цього дня немає часу для такої тривалості.', noFree:'Цього дня вільного часу немає: оберіть іншу дату.', pickSlot:'Оберіть час.', taken:'Цей час щойно зайняли: оберіть інший.', loading:'Завантаження…', noReservation:'Бронювання не потрібне', myBookings:'Мої бронювання', cancelBtn:'Скасувати', cancelConfirm:'Скасувати це бронювання?', cancelled:'Бронювання скасовано.', confirmBtn:'Підтвердити бронювання'},
+  guestParking:{title:'Гостьовий паркінг', note:'Ваше закріплене місце не зачіпається — це бронювання окремого гостьового місця.',
+    fromLabel:'Дата початку', fromValue:'25 серпня 2026', toLabel:'Дата завершення', toValue:'27 серпня 2026', stayNote:'Перебування — 3 дні',
+    guestNameLabel:'Імʼя гостя', guestNamePh:'Кого ви очікуєте?', plateLabel:'Номер автомобіля', platePh:'напр. АА1234АА', confirmBtn:'Забронювати місце'},
+  documentsList:[
+    {name:'Договір оренди', meta:'PDF · Підписано в січні 2026'},
+    {name:'Правила будинку', meta:'PDF · Оновлено в червні 2026'},
+    {name:'Повідомлення', meta:'3 документи'},
+  ],
+  payments:{title:'Платежі', pausedTitle:'Розділ призупинено', pausedBody:'Онлайн-оплата (карти, історія, рахунки) буде увімкнена після інтеграції платіжного провайдера. Поки що цей розділ порожній.'},
+  documents:{downloadAll:'Завантажити все (.zip)', downloadAllError:'Не вдалося завантажити документи.', types:{lease:'Договір оренди', rules:'Правила проживання', rl31:'RL-31 (податкова довідка)', other:'Інше'}},
+  management:{title:'Управляюча компанія', name:`${window.COMPANY_NAME} Gestion Immobilière`, hours:'Пн–Пт, 9:00 – 18:00', callBtn:'Зателефонувати', sendBtn:'Написати повідомлення', emergencyBtn:'Екстрений звʼязок'},
+  messages:{title:'Повідомлення', bubbles:['Вітаю, коли очікувати спеціаліста?','Доброго дня! Майстер прийде сьогодні у другій половині дня.'], placeholder:'Введіть повідомлення'},
+  notifications:{title:'Сповіщення', items:[
+    ['drop','Візит сантехніка заплановано','Спеціаліст приїде 27 серп о 10:00.','2 год тому'],
+    ['card','Нагадування про оплату','Баланс за вересень потрібно оплатити через 5 днів.','1 д тому'],
+    ['building','Новини будинку','Обслуговування ліфта B цими вихідними.','2 д тому'],
+    ['message','Повідомлення від управителя','Вашу заявку №2041 розглянуто.','3 д тому'],
+  ]},
+  personalInfo:{title:'Особисті дані', lockedNote:'Імʼя, квартиру та паркомісце керує ваша управляюча компанія через The Office. Контактні дані нижче можна оновити самостійно.', fullNameLabel:"Повне ім'я", emailLabel:'Email', phoneLabel:'Телефон', aptLabel:'Квартира', parkingLabel:'Паркомісце', saveBtn:'Зберегти зміни',
+    pwdTitle:'Змінити пароль', pwdCurrent:'Поточний пароль', pwdNew:'Новий пароль', pwdConfirm:'Підтвердіть новий пароль', pwdSaveBtn:'Оновити пароль', pwdSaved:'Пароль оновлено.', pwdMismatch:'Нові паролі не збігаються.', pwdTooShort:'Новий пароль має містити щонайменше 8 символів.', pwdAllRequired:'Усі поля обовʼязкові.', logoutEverywhereTitle:'Вийти з усіх пристроїв', logoutEverywhereNote:'Негайно скасовує будь-яку активну сесію на ваших інших пристроях — корисно, якщо ви загубили телефон або підозрюєте, що хтось інший має доступ до акаунта. Тут вас теж буде вилогинено.', logoutEverywhereBtn:'Вийти з усіх пристроїв', logoutEverywhereConfirm:'Вийти з усіх пристроїв, включно з цим?'},
+  footer:{rights:`© 2026 ${window.COMPANY_NAME}`, privacy:'Конфіденційність', terms:'Умови', contact:'Контакти'},
+},
+es:{
+  nav:{home:'Inicio', services:'Servicios', requests:'Mis solicitudes', profile:'Perfil'},
+  aptPrefix:'Apto.', parkingPrefix:'Plaza',
+  login:{title:'Iniciar sesión', subtitle:'Usa las credenciales proporcionadas por la administración.',
+    email:'Usuario', emailPh:'jean.carriere@email.com', password:'Contraseña', passwordPh:'••••••••',
+    signIn:'Iniciar sesión', forgot:'¿Olvidaste tu contraseña?', firstTimeBtn:'¿Primera vez? Crea tu contraseña',
+    note:'Tu acceso lo crea la administración del edificio a través de The Office. ¿No tienes cuenta? Contacta a tu administrador.'},
+  firstTime:{title:'Primera vez aquí', subtitle:'Ingresa tu correo para verificar tu cuenta y crear tu contraseña.',
+    continueBtn:'Continuar', backToLogin:'← Volver a iniciar sesión',
+    sentMessage:'Si existe una cuenta con este correo y está pendiente de activación, se acaba de enviar un enlace. Ábrelo para crear tu contraseña.',
+    notFound:'No existe ninguna cuenta con este correo. Contacta a tu administrador.',
+    alreadyActive:'Esta cuenta ya tiene una contraseña. Por favor, inicia sesión.'},
+  forgotPassword:{title:'Contraseña olvidada', subtitle:'Ingresa tu correo — si existe una cuenta, le enviaremos una nueva contraseña temporal.',
+    sentMessage:'Si existe una cuenta con este correo, se le acaba de enviar una nueva contraseña temporal. Deberás cambiarla en tu próximo inicio de sesión.', submitBtn:'Enviar'},
+  createPassword:{title:'Crea tu contraseña', subtitle:(email)=>`Cuenta: ${email}`,
+    passwordLabel:'Nueva contraseña', confirmLabel:'Confirmar contraseña', submitBtn:'Crear e iniciar sesión',
+    mismatch:'Las contraseñas no coinciden.', tooShort:'La contraseña debe tener al menos 8 caracteres.'},
+  home:{greeting:'Buenos días,', title1:'Todo sobre', title2:'tu hogar, en un solo lugar.',
+    sub:'Sigue tus solicitudes, reserva servicios y mantente informado sobre tu edificio.',
+    aptLabel:'Tu apartamento', buildingWord:'Edificio', addr:'12 Rue des Lilas, Lyon',
+    qReqTitle:'Solicitar servicio', qReqNote:'Avería, reparación, mantenimiento',
+    qCleanTitle:'Limpieza', qCleanNote:'Reservar una visita',
+    qMoveTitle:'Mudanza', qMoveNote:'Solicitar asistencia',
+    qParkingTitle:'Estacionamiento de visitas', qParkingNote:'Reservar un lugar para visitantes',
+    qPayTitle:'Pagos', qPayNote:'Saldo e historial',
+    recentTitle:'Solicitudes recientes', seeAll:'Ver todo →',
+    buildingTitle:'Tu edificio', news:'Noticias', amenities:'Amenidades', documents:'Documentos', management:'Administración'},
+  services:{title:'Servicios', subtitle:'¿En qué podemos ayudarte hoy?',
+    list:{plumbing:{name:'Plomería', desc:'Fugas, tuberías obstruidas, grifería.'},
+      electrical:{name:'Electricidad', desc:'Avería, enchufes, iluminación.'},
+      cleaning:{name:'Limpieza', desc:'Reserva una limpieza profesional.'},
+      moving:{name:'Mudanza', desc:'Solicita ayuda para tu mudanza.'},
+      repairs:{name:'Reparaciones', desc:'Mantenimiento general de tu apartamento.'},
+      other:{name:'Otra solicitud', desc:'¿Algo más? Escríbenos.'}}},
+  form:{priceLabel:'Precio:',back:'← Volver a servicios', lead:'Describe el problema y te pondremos en contacto con un técnico.',
+    descLabel:'Descripción del problema', descPh:'Ej.: el fregadero de la cocina gotea bajo el mueble desde anoche.',
+    photoLabel:'Foto (opcional)', addPhoto:'Agregar foto', addVideo:'Agregar video',
+    dateLabel:'Fecha preferida', dateOptions:['Hoy','Mañana','Esta semana'],
+    timeLabel:'Horario', timeOptions:['9:00 – 12:00','14:00 – 17:00','17:00 – 19:00'],
+    submitBtn:'Enviar solicitud'},
+  confirm:{myBookings:'Mis reservas', bookingTitle:'Reserva confirmada', bookingBody:'Tu reserva ha sido registrada. La administración la ve y te contactará si algo cambia.', title:'Tu solicitud ha sido enviada',
+    body:'Te avisaremos en cuanto se asigne un técnico a la solicitud #2049. Puedes seguir su progreso en cualquier momento.',
+    view:'Ver mis solicitudes', back:'Volver al inicio'},
+  requests:{title:'Mis solicitudes', filterAll:'Todas', filterLive:'Activas', filterDone:'Completadas', empty:'No hay solicitudes en esta categoría.'},
+  statusLabels:{submitted:'Enviada', reviewed:'Revisada', assigned:'Asignada', scheduled:'Programada', completed:'Completada'},
+  categoryLabels:{plumbing:'Plomería', electrical:'Electricidad', cleaning:'Limpieza', moving:'Mudanza', repairs:'Reparaciones', other:'Otra'},
+  
+  detail:{back:'← Mis solicitudes', catLine:'Plomería · Solicitud #2048', title:'Cocina — el fregadero gotea', meta:'Creada el 24 de agosto · Apartamento 402', status:'En curso',
+    steps:[['Solicitud enviada','24 ago, 9:12 a.m.',true],['Revisada por administración','24 ago, 11:40 a.m.',true],['Técnico asignado','25 ago, 8:05 a.m.',true],['Trabajo completado','Pendiente',false]],
+    messageBtn:'Escribir a administración', attachmentsTitle:'Fotos y videos', noAttachments:'No hay archivos adjuntos.', scheduledFor:'Visita programada para el'},
+  profile:{aptPrefix:'Apartamento', personalInfo:'Información personal', payments:'Pagos',
+    notifications:'Notificaciones', help:'Ayuda y soporte', signOut:'Cerrar sesión', languageTitle:'Idioma'},
+  newsList:[
+    {tag:'Aviso', title:'Mantenimiento del ascensor B este fin de semana', body:'El ascensor B estará fuera de servicio el sábado de 8 a.m. a 2 p.m. por mantenimiento programado.', date:'21 de agosto de 2026'},
+    {tag:'Noticia', title:'Nuevo lounge en la azotea ya abierto', body:'El lounge renovado en la azotea abre todos los días de 8 a.m. a 10 p.m.', date:'18 de agosto de 2026'},
+    {tag:'Recordatorio', title:'Renovación del permiso de estacionamiento antes del 1 de sept.', body:'Renueva tu permiso de estacionamiento antes del 1 de septiembre para evitar un recargo.', date:'15 de agosto de 2026'},
+  ],
+  newsDetail:{postedBy:'Publicado por la administración'},
+  amenitiesList:[
+    {name:'Gimnasio', hours:'6:00 a.m. – 11:00 p.m.'},
+    {name:'Salón de fiestas', hours:'Con reserva'},
+    {name:'Zona de parrillas', hours:'10:00 a.m. – 9:00 p.m.'},
+    {name:'Lounge', hours:'8:00 a.m. – 12:00 a.m.'},
+  ],
+  amenityBooking:{back:'← Amenidades', lead:'Elige una fecha, la duración y un horario libre.', dateLabel:'Fecha', durationLabel:'Duración', durations:['1 hora','2 horas','3 horas'], slotLabel:'Horario', full:'Completo', noSlots:'Ese día no hay horarios para esa duración.', noFree:'Nada libre ese día: prueba otra fecha.', pickSlot:'Elige un horario.', taken:'Alguien acaba de tomar ese horario: elige otro.', loading:'Cargando…', noReservation:'No requiere reserva', myBookings:'Mis reservas', cancelBtn:'Cancelar', cancelConfirm:'¿Cancelar esta reserva?', cancelled:'Reserva cancelada.', confirmBtn:'Confirmar reserva'},
+  guestParking:{title:'Estacionamiento de visitas', note:'Tu lugar asignado no se ve afectado — esto reserva un lugar de visitas separado.',
+    fromLabel:'Fecha de inicio', fromValue:'25 de agosto de 2026', toLabel:'Fecha de fin', toValue:'27 de agosto de 2026', stayNote:'Estadía de 3 días',
+    guestNameLabel:'Nombre del visitante', guestNamePh:'¿A quién esperas?', plateLabel:'Placa del vehículo', platePh:'ej. ABC-1234', confirmBtn:'Reservar lugar'},
+  documentsList:[
+    {name:'Contrato de arrendamiento', meta:'PDF · Firmado en enero de 2026'},
+    {name:'Reglamento del edificio', meta:'PDF · Actualizado en junio de 2026'},
+    {name:'Avisos', meta:'3 documentos'},
+  ],
+  payments:{title:'Pagos', pausedTitle:'Sección en pausa', pausedBody:'El pago en línea (tarjetas, historial, facturas) se activará con la integración del proveedor de pagos. Por ahora, esta sección permanece vacía.'},
+  documents:{downloadAll:'Descargar todo (.zip)', downloadAllError:'No se pudieron descargar los documentos.', types:{lease:'Contrato de arrendamiento', rules:'Reglamento interno', rl31:'Comprobante RL-31 (crédito fiscal)', other:'Otro'}},
+  management:{title:'Administración', name:`${window.COMPANY_NAME} Gestion Immobilière`, hours:'Lun–Vie, 9:00 a.m. – 6:00 p.m.', callBtn:'Llamar a administración', sendBtn:'Enviar mensaje', emergencyBtn:'Contacto de emergencia'},
+  messages:{title:'Mensajes', bubbles:['Hola, ¿cuándo debo esperar al técnico?','¡Hola Jean! El técnico llegará esta tarde.'], placeholder:'Escribe un mensaje'},
+  notifications:{title:'Notificaciones', items:[
+    ['drop','Visita de plomería programada','Un técnico llegará el 27 de agosto a las 10:00 a.m.','hace 2 h'],
+    ['card','Recordatorio de pago','Tu saldo de septiembre vence en 5 días.','hace 1 d'],
+    ['building','Noticias del edificio','Mantenimiento del ascensor B este fin de semana.','hace 2 d'],
+    ['message','Mensaje de administración','Tu solicitud #2041 ha sido revisada.','hace 3 d'],
+  ]},
+  personalInfo:{title:'Información personal', lockedNote:'El nombre, el apartamento y el lugar de estacionamiento los gestiona tu administración a través de The Office. Puedes actualizar tus datos de contacto a continuación.', fullNameLabel:'Nombre completo', emailLabel:'Correo electrónico', phoneLabel:'Teléfono', aptLabel:'Apartamento', parkingLabel:'Lugar de estacionamiento', saveBtn:'Guardar cambios',
+    pwdTitle:'Cambiar contraseña', pwdCurrent:'Contraseña actual', pwdNew:'Nueva contraseña', pwdConfirm:'Confirmar nueva contraseña', pwdSaveBtn:'Actualizar contraseña', pwdSaved:'Contraseña actualizada.', pwdMismatch:'Las nuevas contraseñas no coinciden.', pwdTooShort:'La nueva contraseña debe tener al menos 8 caracteres.', pwdAllRequired:'Todos los campos son obligatorios.', logoutEverywhereTitle:'Cerrar sesión en todos los dispositivos', logoutEverywhereNote:'Invalida de inmediato cualquier sesión activa en tus otros dispositivos — útil si perdiste tu teléfono o crees que alguien más tiene acceso a tu cuenta. También cerrarás tu sesión aquí.', logoutEverywhereBtn:'Cerrar sesión en todos los dispositivos', logoutEverywhereConfirm:'¿Cerrar sesión en todos los dispositivos, incluido este?'},
+  footer:{rights:`© 2026 ${window.COMPANY_NAME}`, privacy:'Privacidad', terms:'Términos', contact:'Contacto'},
+}
+};
+
+
+</script>
+<script>
+// ---------------------------------------------------------------------------
+// DEMO BACKEND — replaces the real api.js. Nothing is sent anywhere: all data
+// lives in memory and resets when the page is reloaded.
+// ---------------------------------------------------------------------------
+const api = (() => {
+  let token = 'demo';
+  const pad = (n) => String(n).padStart(2, '0');
+  const stamp = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const dateOnly = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const at = (days, h = 9, m = 0) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(h, m, 0, 0); return d; };
+  const clone = (v) => JSON.parse(JSON.stringify(v));
+  const later = (v) => new Promise((res) => setTimeout(() => res(clone(v)), 140));
+  const fail = (status, msg) => { const e = new Error(msg); e.status = status; return Promise.reject(e); };
+
+  const me = { id: 1, firstName: 'Alex', lastName: 'Morgan', email: 'alex.morgan@example.com', phone: '+1 555 010 0142',
+    apartmentNumber: '402', buildingCode: 'A', buildingName: 'Building A', buildingAddress: '120 Meadow Lane, Springfield',
+    parkingSpot: 'A-24', monthlyRent: 1240, currency: 'CAD', managedByAdmin: true };
+
+  const requests = [
+    { id: 1, category: 'cleaning', description: 'Deep cleaning before the weekend.', status: 'completed', preferredDate: dateOnly(at(-13)), preferredTime: 'Morning',
+      assignedTo: 'CleanHome Crew', scheduledDate: null, scheduledTime: null, createdAt: stamp(at(-14, 9, 5)), updatedAt: stamp(at(-12, 15)),
+      timeline: [
+        { status: 'submitted', note: 'Request submitted', createdAt: stamp(at(-14, 9, 5)) },
+        { status: 'reviewed', note: 'Reviewed by management', createdAt: stamp(at(-14, 10, 30)) },
+        { status: 'assigned', note: 'Cleaning crew assigned', createdAt: stamp(at(-13, 8, 0)) },
+        { status: 'completed', note: 'Job completed', createdAt: stamp(at(-12, 15, 0)) }], attachments: [] },
+    { id: 2, category: 'electrical', description: 'Outlet not working in the bedroom.', status: 'submitted', preferredDate: dateOnly(at(1)), preferredTime: 'Afternoon',
+      assignedTo: null, scheduledDate: null, scheduledTime: null, createdAt: stamp(at(-1, 8, 40)), updatedAt: stamp(at(-1, 8, 40)),
+      timeline: [{ status: 'submitted', note: 'Request submitted', createdAt: stamp(at(-1, 8, 40)) }], attachments: [] },
+    { id: 3, category: 'plumbing', description: 'Kitchen sink is leaking under the cabinet.', status: 'scheduled', preferredDate: dateOnly(at(-1)), preferredTime: 'Afternoon',
+      assignedTo: 'Mike Turner', scheduledDate: dateOnly(at(1)), scheduledTime: '10:00', createdAt: stamp(at(-3, 9, 12)), updatedAt: stamp(at(-1, 16, 0)),
+      timeline: [
+        { status: 'submitted', note: 'Request submitted', createdAt: stamp(at(-3, 9, 12)) },
+        { status: 'reviewed', note: 'Reviewed by management', createdAt: stamp(at(-3, 11, 40)) },
+        { status: 'assigned', note: 'Technician assigned: Mike Turner', createdAt: stamp(at(-2, 8, 5)) },
+        { status: 'scheduled', note: 'Visit confirmed for tomorrow at 10 AM', createdAt: stamp(at(-1, 16, 0)) }], attachments: [] },
+  ];
+  let nextRequestId = 4, nextAttachmentId = 1;
+
+  const amenities = [
+    { id: 1, key: 'gym', name: 'Gym', hours: '06:00 – 23:00', bookable: true, quantity: 1, openTime: '06:00', closeTime: '23:00' },
+    { id: 2, key: 'party', name: 'Party room', hours: '09:00 – 23:00', bookable: true, quantity: 1, openTime: '09:00', closeTime: '23:00' },
+    { id: 3, key: 'bbq', name: 'BBQ area', hours: '10:00 – 21:00', bookable: true, quantity: 5, openTime: '10:00', closeTime: '21:00' },
+    { id: 4, key: 'cinema', name: 'Cinema room', hours: '18:00 – 23:00', bookable: true, quantity: 1, openTime: '18:00', closeTime: '23:00' },
+    { id: 5, key: 'pool', name: 'Pool', hours: '07:00 – 22:00', bookable: false, quantity: 1, openTime: '07:00', closeTime: '22:00' },   // information only
+    { id: 6, key: 'pingpong', name: 'Ping-pong', hours: '09:00 – 22:00', bookable: true, quantity: 2, openTime: '09:00', closeTime: '22:00' },
+  ];
+  // Other residents' bookings, so the demo shows taken ("Full") times: the gym is booked tomorrow 18:00, 4 of 5 BBQs at noon.
+  const bookings = [{ id: 1, amenityId: 1, date: dateOnly(at(1)), timeSlot: '18:00', duration: '1h' }];
+  for (let i = 0; i < 4; i++) bookings.push({ id: 2 + i, amenityId: 3, date: dateOnly(at(1)), timeSlot: '12:00', duration: '1h' });
+  // The demo resident's own bookings (shown under "My bookings", can be cancelled).
+  bookings.push({ id: 20, amenityId: 6, date: dateOnly(at(1)), timeSlot: '17:00', duration: '1h', mine: true, createdAt: stamp(at(0, 9)) });
+  bookings.push({ id: 21, amenityId: 4, date: dateOnly(at(3)), timeSlot: '20:00', duration: '2h', mine: true, createdAt: stamp(at(0, 9, 30)) });
+  let nextBookingId = 100;
+
+  // Same rules as the real server: an amenity has `quantity` identical units; a booking takes one for its whole duration.
+  const DUR = { '1h': 1, '2h': 2, '3h': 3 };
+  const toMin = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(t || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+  const fmtMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+  const freeUnits = (a, date, start, end) => {
+    const iv = bookings.filter((x) => x.amenityId === a.id && x.date === date).map((x) => [toMin(x.timeSlot), toMin(x.timeSlot) + 60 * parseFloat(x.duration)]);
+    const pts = [start, ...iv.map((i) => i[0]).filter((v) => v > start && v < end)];
+    return Math.max(0, a.quantity - Math.max(...pts.map((pt) => iv.filter(([s0, e0]) => s0 <= pt && pt < e0).length)));
+  };
+  const passed = (date, start) => { const n = new Date(); return date === dateOnly(n) && start <= n.getHours() * 60 + n.getMinutes(); };
+
+  const news = [
+    { id: 3, tag: 'Notice', title: 'Fire alarm test tomorrow, 10 AM', body: 'A routine fire alarm test will take place in Building A tomorrow at 10 AM. No action is needed on your side.', publishedAt: stamp(at(-1, 9, 0)) },
+    { id: 2, tag: 'News', title: 'New rooftop lounge is now open', body: 'The redesigned rooftop lounge is open daily from 8 AM to 10 PM. Reservations are available right here in the app.', publishedAt: stamp(at(-9, 9, 0)) },
+    { id: 1, tag: 'Notice', title: 'Elevator B maintenance this weekend', body: 'Elevator B will be out of service on Saturday from 8 AM to 2 PM for scheduled maintenance. Thank you for your patience.', publishedAt: stamp(at(-12, 9, 0)) },
+  ];
+
+  const documents = [
+    { id: 'shared-1', originalName: 'House rules.pdf', docType: 'rules', mimeType: 'application/pdf', sizeBytes: 182400, uploadedAt: stamp(at(-120, 10, 0)) },
+    { id: 1, originalName: 'Lease agreement.pdf', docType: 'lease', mimeType: 'application/pdf', sizeBytes: 311200, uploadedAt: stamp(at(-200, 10, 0)) },
+  ];
+
+  const messages = [
+    { id: 1, sender: 'resident', body: 'Hi, when can the plumber come to fix the leak?', createdAt: stamp(at(-2, 14, 10)) },
+    { id: 2, sender: 'management', body: 'Hi Alex, a technician will come tomorrow at 10 AM. We’ll message you if anything changes.', createdAt: stamp(at(-1, 16, 5)) },
+  ];
+  let nextMessageId = 3;
+
+  const guestParking = [
+    { id: 1, guestName: 'Sophie Martin', licensePlate: 'ABC 123', startDate: dateOnly(at(1)), endDate: dateOnly(at(2)), createdAt: stamp(at(-1, 11, 0)) },
+  ];
+  let nextGuestId = 2;
+
+  const settings = { managementPhone: '+1 555 010 0100', services: {
+    plumbing: { enabled: true, price: null }, electrical: { enabled: true, price: null },
+    cleaning: { enabled: true, price: 80 }, moving: { enabled: true, price: 249.5 },
+    repairs: { enabled: true, price: null }, other: { enabled: true, price: null } } };
+
+  const listShape = (r) => { const { timeline, attachments, ...rest } = r; return rest; };
+
+  return {
+    getToken() { return token; },
+    setToken(t) { token = t; },
+    clearToken() { token = null; },
+
+    login() { token = 'demo'; return later({ token: 'demo', mustChangePassword: false }); },
+    getMe() { return later(me); },
+    updateMe(patch) { Object.assign(me, patch || {}); return later(me); },
+
+    getRequests() { return later(requests.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).map(listShape)); },
+    getRequest(id) { const r = requests.find((x) => String(x.id) === String(id)); return r ? later(r) : fail(404, 'Request not found.'); },
+    createRequest(p) {
+      const now = new Date();
+      const r = { id: nextRequestId++, category: p.category, description: p.description, status: 'submitted',
+        preferredDate: p.preferredDate || null, preferredTime: p.preferredTime || null, assignedTo: null, scheduledDate: null, scheduledTime: null,
+        createdAt: stamp(now), updatedAt: stamp(now),
+        timeline: [{ status: 'submitted', note: 'Request submitted', createdAt: stamp(now) }], attachments: [] };
+      requests.push(r);
+      return later(listShape(r));
+    },
+    uploadAttachment(requestId, file) {
+      const r = requests.find((x) => String(x.id) === String(requestId));
+      const a = { id: nextAttachmentId++, originalName: (file && file.name) || 'photo.jpg', mimeType: (file && file.type) || 'image/jpeg', sizeBytes: (file && file.size) || 0 };
+      if (r) r.attachments.push(a);
+      return later(a);
+    },
+
+    checkEmail() { return later({ ok: true }); },
+    setPassword() { token = 'demo'; return later({ token: 'demo' }); },
+    forgotPassword() { return later({ ok: true }); },
+    changePassword() { return later({ ok: true, token: 'demo' }); },
+    logoutEverywhere() { return later({ ok: true }); },
+
+    getAmenities() { return later(amenities); },
+    getMyBookings() {
+      const now = new Date();
+      return later(bookings.filter((b) => b.mine && new Date(`${b.date}T${b.timeSlot}:00`) > now).sort((x, y) => (x.date + x.timeSlot < y.date + y.timeSlot ? -1 : 1))
+        .map((b) => { const a = amenities.find((x) => x.id === b.amenityId); return { id: b.id, amenityId: a.id, amenityName: a.name, amenityKey: a.key, date: b.date, timeSlot: b.timeSlot, duration: b.duration, createdAt: b.createdAt }; }));
+    },
+    cancelBooking(id) {
+      const i = bookings.findIndex((b) => b.mine && String(b.id) === String(id));
+      if (i < 0) return fail(404, 'Booking not found.');
+      bookings.splice(i, 1);                       // frees the time again
+      return later({ ok: true });
+    },
+    getAmenityAvailability(id, date, duration) {
+      const a = amenities.find((x) => x.id === Number(id)); if (!a) return fail(404, 'Amenity not found.');
+      const h = DUR[duration] || 1, open = toMin(a.openTime), close = toMin(a.closeTime), slots = [];
+      if (a.bookable) for (let st = open; st + h * 60 <= close; st += 60) slots.push({ time: fmtMin(st), left: passed(date, st) ? 0 : freeUnits(a, date, st, st + h * 60) });
+      return later({ amenityId: a.id, bookable: a.bookable, quantity: a.quantity, date, duration, slots, problem: null });
+    },
+    bookAmenity(id, p) {
+      const a = amenities.find((x) => x.id === Number(id)); if (!a) return fail(404, 'Amenity not found.');
+      if (!a.bookable) return fail(400, 'This space does not need a reservation.');
+      const h = DUR[p.duration], st = toMin(p.timeSlot);
+      if (!h || st === null || !/^\d{4}-\d{2}-\d{2}$/.test(p.date || '')) return fail(400, 'Please pick a date, a time and a duration.');
+      if (p.date < dateOnly(new Date()) || passed(p.date, st)) return fail(400, 'That time has already passed.');
+      if (st < toMin(a.openTime) || st + h * 60 > toMin(a.closeTime)) return fail(400, `This space is open ${a.hours}.`);
+      if (freeUnits(a, p.date, st, st + h * 60) < 1) return fail(409, 'This time is no longer available.');
+      const newId = nextBookingId++;
+      bookings.push({ id: newId, amenityId: a.id, date: p.date, timeSlot: p.timeSlot, duration: p.duration, mine: true, createdAt: stamp(new Date()) });
+      return later({ id: newId, amenityId: a.id, date: p.date, timeSlot: p.timeSlot, duration: p.duration });
+    },
+
+    getGuestParking() { return later(guestParking.slice().reverse()); },
+    createGuestParking(p) {
+      const g = { id: nextGuestId++, guestName: p.guestName, licensePlate: p.licensePlate, startDate: p.startDate, endDate: p.endDate, createdAt: stamp(new Date()) };
+      guestParking.push(g);
+      return later(g);
+    },
+
+    getMessages() { return later(messages); },
+    sendMessage(body) {
+      const m = { id: nextMessageId++, sender: 'resident', body, createdAt: stamp(new Date()) };
+      messages.push(m);
+      // A friendly canned reply shows up a moment later (visible when the thread is reopened).
+      setTimeout(() => messages.push({ id: nextMessageId++, sender: 'management', body: 'Thanks for your message — our team will get back to you shortly.', createdAt: stamp(new Date()) }), 2500);
+      return later(m);
+    },
+
+    getNews() { return later(news); },
+    getDocuments() { return later(documents); },
+    getSettings() { return later(settings); },
+  };
+})();
+
+</script>
+<script>
+// app.js — view rendering + state. All resident/request data comes from
+// the backend via api.js. i18n copy comes from i18n.js (window.I18N).
+// This file has NO hardcoded resident data — that would defeat the
+// point of having a real backend.
+
+const serviceIcons = {
+  plumbing: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z',
+  electrical: 'M13 3 5 14h6l-1 7 8-11h-6l1-7Z',
+  cleaning: 'M12 3v4M12 17v4M4.5 12h4M15.5 12h4M6.5 6.5l2.8 2.8M14.7 14.7l2.8 2.8M17.5 6.5l-2.8 2.8M9.3 14.7l-2.8 2.8',
+  moving: 'M3 8l9-4 9 4-9 4-9-4Z|M3 8v9l9 4 9-4V8|M12 12v9',
+  repairs: 'M14.5 6.5a4 4 0 0 0-5.4 5l-6 6L5 19.4l6-6a4 4 0 0 0 5-5.4l-2.4 2.4-2-2 2.4-2.4Z',
+  other: 'M6 12h.01M12 12h.01M18 12h.01',
+};
+const serviceOrder = ['plumbing', 'electrical', 'cleaning', 'moving', 'repairs', 'other'];
+const notifIcons = {
+  drop: serviceIcons.plumbing,
+  card: 'M3 6h18v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z|M3 10h18',
+  building: 'M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1Z',
+  message: 'M6 3h3l1.5 4.5-2 1.5a12 12 0 0 0 6 6l1.5-2 4.5 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 6.2 2 2 0 0 1 6 3Z',
+};
+const LANG_NAMES = [['fr', 'Français'], ['en', 'English'], ['uk', 'Українська'], ['es', 'Español']];
+
+// Static demo content not modeled by the backend yet (news, amenities,
+// documents, notifications). These follow the exact same "add a table +
+// route + wire the view" pattern as requests — see server/routes/requests.js.
+const STATIC_I18N = {
+fr:{
+  newsList: [
+    { tag: 'Avis', title: "Maintenance de l'ascenseur B ce week-end", body: "L'ascenseur B sera hors service samedi de 8h à 14h pour une maintenance programmée.", date: '21 août 2026' },
+    { tag: 'Actualité', title: 'Nouveau salon sur le toit ouvert', body: 'Le salon rénové sur le toit est ouvert tous les jours de 8h à 22h.', date: '18 août 2026' },
+  ],
+  amenitiesList: [
+    { key:'gym', name: 'Salle de sport', hours: '6h00 – 23h00' },
+    { key:'party', name: 'Salle de réception', hours: 'Sur réservation' },
+    { key:'bbq', name: 'Espace barbecue', hours: '10h00 – 21h00' },
+  ],
+  documentsList: [
+    { name: 'Contrat de bail', meta: 'PDF · Signé en janvier 2026' },
+    { name: 'Règlement intérieur', meta: 'PDF · Mis à jour en juin 2026' },
+  ],
+  notifications: [
+    ['drop', 'Visite plombier planifiée', 'Un technicien arrivera le 27 août à 10h00.', 'il y a 2 h'],
+    ['card', 'Rappel de paiement', 'Votre solde de septembre est dû dans 5 jours.', 'il y a 1 j'],
+  ],
+},
+en:{
+  newsList: [
+    { tag: 'Notice', title: 'Elevator B maintenance this weekend', body: 'Elevator B will be out of service Saturday 8AM–2PM for scheduled maintenance.', date: 'Aug 21, 2026' },
+    { tag: 'News', title: 'New rooftop lounge now open', body: 'The redesigned rooftop lounge is open daily from 8AM to 10PM.', date: 'Aug 18, 2026' },
+  ],
+  amenitiesList: [
+    { key:'gym', name: 'Gym', hours: '6:00 AM – 11:00 PM' },
+    { key:'party', name: 'Party room', hours: 'By reservation' },
+    { key:'bbq', name: 'BBQ area', hours: '10:00 AM – 9:00 PM' },
+  ],
+  documentsList: [
+    { name: 'Lease agreement', meta: 'PDF · Signed January 2026' },
+    { name: 'Building rules', meta: 'PDF · Updated June 2026' },
+  ],
+  notifications: [
+    ['drop', 'Plumbing visit scheduled', 'A technician will arrive Aug 27 at 10:00 AM.', '2h ago'],
+    ['card', 'Payment reminder', 'Your September balance is due in 5 days.', '1d ago'],
+  ],
+},
+uk:{
+  newsList: [
+    { tag: 'Повідомлення', title: 'Обслуговування ліфта B цими вихідними', body: 'Ліфт B буде вимкнено в суботу з 8:00 до 14:00 для планового обслуговування.', date: '21 серпня 2026' },
+    { tag: 'Новина', title: 'Відкрито нову зону відпочинку на даху', body: 'Оновлена зона відпочинку на даху відкрита щодня з 8:00 до 22:00.', date: '18 серпня 2026' },
+  ],
+  amenitiesList: [
+    { key:'gym', name: 'Спортзал', hours: '6:00 – 23:00' },
+    { key:'party', name: 'Банкетна зала', hours: 'За записом' },
+    { key:'bbq', name: 'Зона барбекю', hours: '10:00 – 21:00' },
+  ],
+  documentsList: [
+    { name: 'Договір оренди', meta: 'PDF · Підписано в січні 2026' },
+    { name: 'Правила будинку', meta: 'PDF · Оновлено в червні 2026' },
+  ],
+  notifications: [
+    ['drop', 'Візит сантехніка заплановано', 'Спеціаліст приїде 27 серп о 10:00.', '2 год тому'],
+    ['card', 'Нагадування про оплату', 'Баланс за вересень потрібно оплатити через 5 днів.', '1 д тому'],
+  ],
+},
+es:{
+  newsList: [
+    { tag: 'Aviso', title: 'Mantenimiento del ascensor B este fin de semana', body: 'El ascensor B estará fuera de servicio el sábado de 8 a.m. a 2 p.m. por mantenimiento programado.', date: '21 de agosto de 2026' },
+    { tag: 'Noticia', title: 'Nuevo lounge en la azotea ya abierto', body: 'El lounge renovado en la azotea abre todos los días de 8 a.m. a 10 p.m.', date: '18 de agosto de 2026' },
+  ],
+  amenitiesList: [
+    { key:'gym', name: 'Gimnasio', hours: '6:00 a.m. – 11:00 p.m.' },
+    { key:'party', name: 'Salón de fiestas', hours: 'Con reserva' },
+    { key:'bbq', name: 'Zona de parrillas', hours: '10:00 a.m. – 9:00 p.m.' },
+  ],
+  documentsList: [
+    { name: 'Contrato de arrendamiento', meta: 'PDF · Firmado en enero de 2026' },
+    { name: 'Reglamento del edificio', meta: 'PDF · Actualizado en junio de 2026' },
+  ],
+  notifications: [
+    ['drop', 'Visita de plomería programada', 'Un técnico llegará el 27 de agosto a las 10:00 a.m.', 'hace 2 h'],
+    ['card', 'Recordatorio de pago', 'Tu saldo de septiembre vence en 5 días.', 'hace 1 d'],
+  ],
+},
+};
+function STATIC(){ return STATIC_I18N[state.lang]; }
+
+const amenityIcons = {
+  cinema: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M3 11h18M6.5 7 9 11M12 7l2.5 4M17.5 7 20 11M4 7l-.6-2.6L19 3l.6 2.6"/>',
+  pool: '<path d="M3 15c1.5 1.3 3 1.3 4.5 0s3-1.3 4.5 0 3 1.3 4.5 0 3-1.3 4.5 0"/><path d="M3 19.5c1.5 1.3 3 1.3 4.5 0s3-1.3 4.5 0 3 1.3 4.5 0 3-1.3 4.5 0"/><path d="M8 12V6.5a2 2 0 0 1 4 0M14 12V6.5a2 2 0 0 1 4 0M8 9h6"/>',
+  pingpong: '<circle cx="9.5" cy="9.5" r="6"/><path d="m13.8 13.8 6 6"/><circle cx="19" cy="5.5" r="1.4"/>',
+  other: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  gym: '<rect x="2" y="9" width="3" height="6" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/><line x1="5" y1="12" x2="19" y2="12"/><rect x="7" y="6" width="2.2" height="12" rx="1"/><rect x="14.8" y="6" width="2.2" height="12" rx="1"/>',
+  party: '<circle cx="12" cy="9" r="5"/><path d="M12 14v2"/><path d="M10 16h4l-1 5h-2Z"/>',
+  bbq: '<path d="M12 3s5 5 5 9a5 5 0 0 1-10 0c0-1.5.8-2.8 1.6-3.8.2 1 .9 1.8 1.9 1.8-.3-2 .6-4 1.5-7Z"/>',
+  lounge: '<path d="M4 12v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/><path d="M4 12a2 2 0 0 1 2-2h1V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h1a2 2 0 0 1 2 2"/><path d="M6 18v2M18 18v2"/>',
+};
+
+
+let state = {
+  view: 'login',
+  lang: 'en',
+  langMenuOpen: false,
+  amenDate: null, amenAvail: null, amenSlot: null, amenLoading: false, myBookings: [], amenNotice: null,   // amenity booking screen
+  filter: 'all',
+  activeService: 'plumbing',
+  activeNews: 0,
+  activeAmenity: 0,
+  resident: null,      // filled by api.getMe()
+  requests: [],         // filled by api.getRequests()
+  requestDetail: null,  // filled by api.getRequest(id)
+  loginError: null,
+  busy: false,
+  managementPhone: null,
+  services: null,       // { cleaning: {enabled, price}, ... } — which services management offers (null until loaded = show everything)
+  pwdError: null,
+  pwdSaved: false,
+  firstTimeSent: false,
+  pendingActivationToken: null,
+  forgotPasswordSent: false,
+  forgotPasswordError: null,
+};
+let L;
+
+// Escapes text before it goes into an HTML template string. Every field
+// that came from user input (request descriptions, chat messages, names,
+// etc.) MUST be wrapped in this before being interpolated into a `` ` ``
+// template that becomes innerHTML — otherwise a resident could store a
+// <script> tag that runs in another resident's, or the admin's, browser.
+function esc(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function svcIcon(path, size) {
+  size = size || 20;
+  const parts = path.split('|').map(p => `<path d="${p}"/>`).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${parts}</svg>`;
+}
+
+function statusBucket(status) {
+  if (status === 'completed') return 'done';
+  if (status === 'submitted') return 'new';
+  return 'live'; // reviewed | assigned | scheduled
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso.replace(' ', 'T'));
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(state.lang, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+// "2026-10-05" + "10:00" -> "Oct 5, 10:00 AM" (date only if no time was set)
+function formatVisit(date, time) {
+  if (!date) return '';
+  if (time) return formatDate(`${date} ${time}`);
+  const d = new Date(`${date}T00:00:00`);
+  if (isNaN(d)) return date;
+  return d.toLocaleDateString(state.lang, { day: 'numeric', month: 'short' });
+}
+
+function reqRow(r) {
+  const bucket = statusBucket(r.status);
+  const when = r.preferredDate ? `${esc(r.preferredDate)}${r.preferredTime ? ' · ' + esc(r.preferredTime) : ''}` : formatDate(r.createdAt);
+  return `
+    <button class="req-row" data-go="detail" data-req="${r.id}">
+      <div class="req-dot ${bucket === 'live' ? 'live' : ''}"></div>
+      <div class="req-main">
+        <div class="req-cat">${L.categoryLabels[r.category] || r.category}</div>
+        <div class="req-title">${esc(r.description)}</div>
+        <div class="req-when">${when}</div>
+      </div>
+      <div class="req-status ${bucket}">${L.statusLabels[r.status] || r.status}</div>
+    </button>
+  `;
+}
+
+const views = {};
+
+// Compact language picker: one button showing the current language that opens
+// a small menu with a check mark on the active one. Replaces the row of pills,
+// which wrapped unevenly on phones (ragged widths, a lone "Español" on line two).
+function langPicker() {
+  const current = (LANG_NAMES.find(([c]) => c === state.lang) || LANG_NAMES[0])[1];
+  const check = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4.5 4.5L19 8"/></svg>';
+  return `<div class="lang-menu-wrap">
+    <button type="button" class="lang-trigger" data-action="toggle-lang-menu" aria-haspopup="listbox" aria-expanded="${state.langMenuOpen ? 'true' : 'false'}" aria-label="${L.profile.languageTitle}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.3 3.8 5.3 3.8 8.5S14.5 18.2 12 20.5C9.5 18.2 8.2 15.2 8.2 12S9.5 5.8 12 3.5Z"/></svg>
+      <span>${current}</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    ${state.langMenuOpen ? `<div class="lang-menu" role="listbox">${LANG_NAMES.map(([code, name]) => `
+      <button type="button" class="lang-opt ${state.lang === code ? 'active' : ''}" role="option" aria-selected="${state.lang === code}" data-setlang="${code}"><span>${name}</span>${state.lang === code ? check : ''}</button>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+views.login = () => `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-top">
+        <div class="login-wordmark">${window.COMPANY_NAME}</div>
+        ${langPicker()}
+      </div>
+      <h1>${L.login.title}</h1>
+      <p class="sub">${L.login.subtitle}</p>
+      <form id="loginForm">
+        <div class="field">
+          <label>${L.login.email}</label>
+          <input type="text" id="loginEmail" value="alex.morgan@example.com" placeholder="${L.login.emailPh}" autocomplete="username">
+        </div>
+        <div class="field" style="margin-bottom:8px;">
+          <label>${L.login.password}</label>
+          <input type="password" id="loginPassword" value="demo1234" placeholder="${L.login.passwordPh}" autocomplete="current-password">
+        </div>
+        ${state.loginError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin-bottom:14px;">${state.loginError}</div>` : ''}
+        <div class="login-actions">
+          <button class="btn btn-primary" type="submit" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.login.signIn}</button>
+          <button class="btn btn-secondary" type="button" data-go="forgotPassword">${L.login.forgot}</button>
+        </div>
+      </form>
+      <button class="btn btn-secondary login-first" data-go="firstTime">${L.login.firstTimeBtn}</button>
+      <p class="login-note">${L.login.note}</p>
+    </div>
+  </div>
+`;
+
+views.forgotPassword = () => `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-wordmark">${window.COMPANY_NAME}</div>
+      <h1>${L.forgotPassword.title}</h1>
+      <p class="sub">${L.forgotPassword.subtitle}</p>
+      ${state.forgotPasswordSent ? `
+        <p style="font-size:13px; color:var(--g700); line-height:1.6; margin:20px 0;">${L.forgotPassword.sentMessage}</p>
+        <button class="btn btn-secondary" data-go="login">${L.firstTime.backToLogin}</button>
+      ` : `
+        <form id="forgotPasswordForm">
+          <div class="field" style="margin-bottom:8px;">
+            <label>${L.login.email}</label>
+            <input type="text" id="forgotEmail" placeholder="${L.login.emailPh}" autocomplete="username">
+          </div>
+          ${state.forgotPasswordError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin:10px 0;">${state.forgotPasswordError}</div>` : ''}
+          <button class="btn btn-primary" type="submit" style="margin-top:8px;" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.forgotPassword.submitBtn}</button>
+        </form>
+        <button class="btn btn-secondary" style="margin-top:10px;" data-go="login">${L.firstTime.backToLogin}</button>
+      `}
+    </div>
+  </div>
+`;
+
+views.firstTime = () => `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-wordmark">${window.COMPANY_NAME}</div>
+      <h1>${L.firstTime.title}</h1>
+      <p class="sub">${L.firstTime.subtitle}</p>
+      ${state.firstTimeSent ? `
+        <p style="font-size:13px; color:var(--g700); line-height:1.6; margin:20px 0;">${L.firstTime.sentMessage}</p>
+        <button class="btn btn-secondary" data-go="login">${L.firstTime.backToLogin}</button>
+      ` : `
+        <form id="firstTimeForm">
+          <div class="field" style="margin-bottom:8px;">
+            <label>${L.login.email}</label>
+            <input type="text" id="firstTimeEmail" placeholder="${L.login.emailPh}" autocomplete="username">
+          </div>
+          ${state.firstTimeError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin:10px 0;">${state.firstTimeError}</div>` : ''}
+          <button class="btn btn-primary" type="submit" style="margin-top:8px;" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.firstTime.continueBtn}</button>
+        </form>
+        <button class="btn btn-secondary" style="margin-top:10px;" data-go="login">${L.firstTime.backToLogin}</button>
+      `}
+    </div>
+  </div>
+`;
+
+views.createPassword = () => `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-wordmark">${window.COMPANY_NAME}</div>
+      <h1>${L.createPassword.title}</h1>
+      <p class="sub">${L.createPassword.subtitle(state.pendingActivationEmail || '')}</p>
+      <form id="createPasswordForm">
+        <div class="field">
+          <label>${L.createPassword.passwordLabel}</label>
+          <input type="password" id="newPassword" autocomplete="new-password">
+        </div>
+        <div class="field" style="margin-bottom:8px;">
+          <label>${L.createPassword.confirmLabel}</label>
+          <input type="password" id="confirmPassword" autocomplete="new-password">
+        </div>
+        ${state.createPasswordError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin:10px 0;">${state.createPasswordError}</div>` : ''}
+        <button class="btn btn-primary" type="submit" style="margin-top:8px;" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.createPassword.submitBtn}</button>
+      </form>
+      <button class="btn btn-secondary" style="margin-top:10px;" data-go="login">${L.firstTime.backToLogin}</button>
+    </div>
+  </div>
+`;
+
+views.home = () => `
+  <div class="hero">
+    <div>
+      <div class="eyebrow">${L.home.greeting} ${esc(state.resident.firstName)}</div>
+      <h1>${L.home.title1}<br>${L.home.title2}</h1>
+      <p class="sub">${L.home.sub}</p>
+    </div>
+    <div class="hero-apt">
+      <div class="lbl">${L.home.aptLabel}</div>
+      <div class="num">${esc(state.resident.apartmentNumber)} · ${L.home.buildingWord} ${esc(state.resident.buildingCode)}</div>
+      ${state.resident && state.resident.buildingAddress ? `<div class="addr">${esc(state.resident.buildingAddress)}</div>` : ''}
+    </div>
+  </div>
+
+  <div class="quick-row">
+    <button class="quick-item" data-go="services">
+      <svg class="qi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${serviceIcons.repairs}"/></svg>
+      <span class="qi-label">${L.home.qReqTitle}</span>
+      <span class="qi-note">${L.home.qReqNote}</span>
+    </button>
+    ${enabledServices().includes('cleaning') ? `<button class="quick-item" data-go="requestForm" data-svc="cleaning">
+      <svg class="qi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${serviceIcons.cleaning}"/></svg>
+      <span class="qi-label">${L.home.qCleanTitle}</span>
+      <span class="qi-note">${L.home.qCleanNote}</span>
+    </button>` : ''}
+    <button class="quick-item" data-go="guestParking">
+      <svg class="qi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M9.5 8h2.6a2.2 2.2 0 0 1 0 4.4H9.5V8Zm0 4.4V16"/></svg>
+      <span class="qi-label">${L.home.qParkingTitle}</span>
+      <span class="qi-note">${L.home.qParkingNote}</span>
+    </button>
+    <button class="quick-item" data-go="payments">
+      <svg class="qi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+      <span class="qi-label">${L.home.qPayTitle}</span>
+      <span class="qi-note">${L.home.qPayNote}</span>
+    </button>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>${L.home.recentTitle}</h2>
+      <a href="#" class="see-all" data-go="requests">${L.home.seeAll}</a>
+    </div>
+    ${state.requests.slice(0, 3).map(reqRow).join('') || `<div class="empty-note">${L.requests.empty}</div>`}
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2>${L.home.buildingTitle}</h2></div>
+    <div class="building-row">
+      <a href="#" class="building-item" data-go="buildingNews"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1Z"/></svg>${L.home.news}</a>
+      <a href="#" class="building-item" data-go="amenities"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>${L.home.amenities}</a>
+      <a href="#" class="building-item" data-go="documents"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6"/></svg>${L.home.documents}</a>
+      <a href="#" class="building-item" data-go="management"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h3l1.5 4.5-2 1.5a12 12 0 0 0 6 6l1.5-2 4.5 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 6.2 2 2 0 0 1 6 3Z"/></svg>${L.home.management}</a>
+    </div>
+  </div>
+`;
+
+views.services = () => `
+  <div class="section" style="padding-top:24px; border-bottom:none;">
+    <div class="section-head"><h2 style="font-size:22px;">${L.services.title}</h2></div>
+    <p style="color:var(--g600); font-size:13.5px; margin-top:-10px; margin-bottom:22px;">${L.services.subtitle}</p>
+    <div class="svc-list">
+      ${enabledServices().map(key => {
+        const s = L.services.list[key];
+        const price = servicePrice(key);
+        return `<button class="svc-row" data-go="requestForm" data-svc="${key}">
+          <div class="svc-ic">${svcIcon(serviceIcons[key], 20)}</div>
+          <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-desc">${s.desc}</div></div>
+          ${price !== null ? `<div class="svc-price">${fmtPrice(price)}</div>` : ''}
+          <div class="svc-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l7 6-7 6"/></svg></div>
+        </button>`;
+      }).join('')}
+    </div>
+  </div>
+`;
+
+views.requestForm = () => {
+  const svc = L.services.list[state.activeService] || L.services.list.plumbing;
+  return `
+  <div class="form-shell">
+    <a href="#" class="back-link" data-go="services">${L.form.back}</a>
+    <div class="form-card">
+      <h1>${svc.name}</h1>
+      ${servicePrice(state.activeService) !== null ? `<div class="svc-price-note">${L.form.priceLabel} <strong>${fmtPrice(servicePrice(state.activeService))}</strong></div>` : ''}
+      <p class="lead">${L.form.lead}</p>
+      <div class="field">
+        <label>${L.form.descLabel}</label>
+        <textarea id="reqDescription" placeholder="${L.form.descPh}"></textarea>
+      </div>
+      <div class="field">
+        <label>${L.form.photoLabel}</label>
+        <div class="attach-row">
+          <label class="attach-box" style="cursor:pointer; display:block;">
+            <input type="file" id="reqPhotoInput" accept="image/*" style="display:none;">
+            <span id="reqPhotoLabel">${state.reqPhotoName || L.form.addPhoto}</span>
+          </label>
+          <label class="attach-box" style="cursor:pointer; display:block;">
+            <input type="file" id="reqVideoInput" accept="video/*" style="display:none;">
+            <span id="reqVideoLabel">${state.reqVideoName || L.form.addVideo}</span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label>${L.form.dateLabel}</label>
+        <div class="pill-row" data-pillgroup="date">${L.form.dateOptions.map((d, i) => `<div class="pill ${i === (state.selectedDateIdx ?? 1) ? 'active' : ''}" data-pill="${i}">${d}</div>`).join('')}</div>
+      </div>
+      <div class="field" style="margin-bottom:24px;">
+        <label>${L.form.timeLabel}</label>
+        <div class="pill-row" data-pillgroup="time">${L.form.timeOptions.map((t, i) => `<div class="pill ${i === (state.selectedTimeIdx ?? 1) ? 'active' : ''}" data-pill="${i}">${t}</div>`).join('')}</div>
+      </div>
+      ${state.formError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin-bottom:14px;">${state.formError}</div>` : ''}
+      <button class="btn btn-primary" data-action="submit-request" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.form.submitBtn}</button>
+    </div>
+  </div>
+`;};
+
+views.confirm = () => `
+  <div class="confirm-shell">
+    <div class="confirm-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4.5 4.5L19 8"/></svg></div>
+    <h1>${state.confirmKind === 'booking' ? L.confirm.bookingTitle : L.confirm.title}</h1>
+    <p>${state.confirmKind === 'booking' ? L.confirm.bookingBody : state.lastCreatedId ? L.confirm.body.replace(/[#№]2049/, (state.lang === 'uk' ? '№' : '#') + state.lastCreatedId) : L.confirm.body}</p>
+    <div class="confirm-actions">
+      ${state.confirmKind === 'booking'
+        ? (state.confirmLink === 'amenities'
+            ? `<button class="btn btn-primary" data-go="amenities">${L.confirm.myBookings}</button>
+      <button class="btn btn-secondary" data-go="home">${L.confirm.back}</button>`
+            : `<button class="btn btn-primary" data-go="home">${L.confirm.back}</button>`)
+        : `<button class="btn btn-primary" data-go="requests">${L.confirm.view}</button>
+      <button class="btn btn-secondary" data-go="home">${L.confirm.back}</button>`}
+    </div>
+  </div>
+`;
+
+views.requests = () => {
+  const items = state.filter === 'all' ? state.requests : state.requests.filter(r => statusBucket(r.status) === state.filter);
+  return `
+  <div class="section" style="padding-top:24px; border-bottom:none;">
+    <div class="section-head"><h2 style="font-size:22px;">${L.requests.title}</h2></div>
+    <div class="segment">
+      <button class="${state.filter === 'all' ? 'active' : ''}" data-filter="all">${L.requests.filterAll}</button>
+      <button class="${state.filter === 'live' ? 'active' : ''}" data-filter="live">${L.requests.filterLive}</button>
+      <button class="${state.filter === 'done' ? 'active' : ''}" data-filter="done">${L.requests.filterDone}</button>
+    </div>
+    ${items.map(reqRow).join('') || `<div class="empty-note">${L.requests.empty}</div>`}
+  </div>
+`;};
+
+views.detail = () => {
+  const r = state.requestDetail;
+  if (!r) return `<div class="empty-note">…</div>`;
+  const bucket = statusBucket(r.status);
+  return `
+  <div class="detail-shell">
+    <a href="#" class="back-link" data-go="requests">${L.detail.back}</a>
+    <div class="detail-head">
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--g500); font-weight:700;">${L.categoryLabels[r.category] || r.category} · #${r.id}</div>
+        <h1>${esc(r.description)}</h1>
+        <div class="meta">${formatDate(r.createdAt)} · ${L.home.aptLabel}: ${esc(state.resident.apartmentNumber)}</div>
+      </div>
+      <span class="req-status ${bucket}" style="font-size:12.5px;">${L.statusLabels[r.status] || r.status}</span>
+    </div>
+    ${r.scheduledDate ? `
+    <div style="background:var(--g100); border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:13px; color:var(--brand); font-weight:600;">
+      ${L.detail.scheduledFor} ${esc(formatVisit(r.scheduledDate, r.scheduledTime))}
+    </div>` : ''}
+    <div class="timeline">
+      ${r.timeline.map((ev, i, arr) => `
+        <div class="t-row">
+          <div class="t-dotcol"><div class="t-dot" style="background:var(--brand);"></div>${i < arr.length - 1 ? '<div class="t-line"></div>' : ''}</div>
+          <div class="t-body"><div class="t-title">${ev.note ? esc(ev.note) : (L.statusLabels[ev.status] || ev.status)}</div><div class="t-when">${formatDate(ev.createdAt)}</div></div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:8px;">
+      <h2 style="font-size:14px; font-weight:800; margin:0 0 10px 0;">${L.detail.attachmentsTitle}</h2>
+      ${(r.attachments && r.attachments.length) ? r.attachments.map(a => `
+        <button data-action="view-attachment" data-req="${r.id}" data-att="${a.id}" style="display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:1px solid var(--g200); border-radius:10px; padding:10px 12px; margin-bottom:8px; cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand-dark); flex:0 0 auto;">${a.mimeType && a.mimeType.startsWith('video/') ? '<path d="M4 6h11a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"/><path d="M16 10l5-3v10l-5-3"/>' : '<rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M4 16l4.5-4.5a1.5 1.5 0 0 1 2 0L14 15l2-2a1.5 1.5 0 0 1 2 0L20 15"/>'}</svg>
+          <span style="font-size:12.5px; font-weight:600;">${esc(a.originalName)}</span>
+        </button>
+      `).join('') : `<p style="font-size:12.5px; color:var(--g500);">${L.detail.noAttachments}</p>`}
+    </div>
+    <button class="btn btn-secondary" style="margin-top:8px;" data-go="messages">${L.detail.messageBtn}</button>
+  </div>
+`;};
+
+views.profile = () => `
+  <div class="profile-head">
+    <div class="av">${esc(state.resident.firstName[0])}${esc(state.resident.lastName[0])}</div>
+    <div class="name">${esc(state.resident.firstName)} ${esc(state.resident.lastName)}</div>
+    <div class="apt">${L.profile.aptPrefix} ${esc(state.resident.apartmentNumber)} · ${L.home.buildingWord} ${esc(state.resident.buildingCode)}</div>
+  </div>
+  <div class="profile-list">
+    <div class="profile-row" style="cursor:default;">
+      <div class="pr-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.3 3.8 5.3 3.8 8.5S14.5 18.2 12 20.5C9.5 18.2 8.2 15.2 8.2 12S9.5 5.8 12 3.5Z"/></svg></div>
+      <span>${L.profile.languageTitle}</span>
+      <div style="margin-left:auto;">${langPicker()}</div>
+    </div>
+    <button class="profile-row" data-go="personalInfo"><div class="pr-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/></svg></div><span>${L.profile.personalInfo}</span></button>
+    <button class="profile-row" data-go="payments"><div class="pr-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></div><span>${L.profile.payments}</span></button>
+    <button class="profile-row" data-go="notifications"><div class="pr-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.4 5.5 1.4 5.5H4.6S6 14 6 10Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg></div><span>${L.profile.notifications}</span></button>
+    <button class="profile-row" data-go="management"><div class="pr-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.4 2.4 0 1 1 3.4 2.2c-.8.4-1 .8-1 1.6"/></svg></div><span>${L.profile.help}</span></button>
+    <button class="profile-row" style="color:#8a1f1f;" data-action="logout"><div class="pr-ic" style="color:#8a1f1f; border-color:#f0d3d3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h3"/><path d="M14 8l4 4-4 4"/><path d="M18 12H9"/></svg></div><span style="color:#8a1f1f;">${L.profile.signOut}</span></button>
+  </div>
+`;
+
+views.buildingNews = () => `
+  <div class="section" style="padding-top:24px; border-bottom:none;">
+    <a href="#" class="back-link" data-go="home">← ${L.nav.home}</a>
+    <div class="section-head"><h2 style="font-size:22px;">${L.home.news}</h2></div>
+    <div class="svc-list">
+      ${(state.news || []).map(n => `
+        <button class="svc-row" data-go="newsDetail" data-news="${n.id}">
+          <div class="svc-ic" style="color:var(--brand-dark);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1Z"/></svg></div>
+          <div class="svc-info">
+            <div style="font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--brand-dark); font-weight:700;">${esc(n.tag)} · ${formatDate(n.publishedAt)}</div>
+            <div class="svc-name" style="margin-top:2px;">${esc(n.title)}</div>
+            <div class="svc-desc">${esc(n.body)}</div>
+          </div>
+        </button>
+      `).join('') || `<div class="empty-note">${L.requests.empty}</div>`}
+    </div>
+  </div>
+`;
+
+views.newsDetail = () => {
+  const n = (state.news || []).find(x => x.id === state.activeNews) || {};
+  return `
+  <div class="detail-shell">
+    <a href="#" class="back-link" data-go="buildingNews">← ${L.home.news}</a>
+    <div style="font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--brand-dark); font-weight:700;">${esc(n.tag) || ''}</div>
+    <h1 style="font-size:22px; font-weight:800; margin:8px 0 6px 0;">${esc(n.title) || ''}</h1>
+    <div class="meta" style="margin-bottom:20px;">${n.publishedAt ? formatDate(n.publishedAt) : ''}</div>
+    <p style="font-size:14px; color:var(--g700); line-height:1.7;">${esc(n.body) || ''}</p>
+  </div>
+`;};
+
+views.amenities = () => `
+  <div class="section" style="padding-top:24px; border-bottom:none;">
+    <a href="#" class="back-link" data-go="home">← ${L.nav.home}</a>
+    <div class="section-head"><h2 style="font-size:22px;">${L.home.amenities}</h2></div>
+    ${state.amenNotice ? `<div class="amen-notice">${esc(state.amenNotice)}</div>` : ''}
+    <div class="svc-list">
+      ${(state.amenities || []).map(a => {
+        const icon = `<div class="svc-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${amenityIcons[a.key] || amenityIcons.other}</svg></div>`;
+        // Information-only spaces (e.g. a pool) never open a booking screen: the island itself says
+        // "no reservation needed" and shows the opening hours.
+        if (!a.bookable) return `
+        <div class="svc-row svc-row-info">
+          ${icon}
+          <div class="svc-info"><div class="svc-name">${esc(a.name)}</div><div class="svc-desc">${esc(a.hours)}</div><span class="svc-note">${L.amenityBooking.noReservation}</span></div>
+        </div>`;
+        return `
+        <button class="svc-row" data-go="amenityBooking" data-amenity="${a.id}">
+          ${icon}
+          <div class="svc-info"><div class="svc-name">${esc(a.name)}</div><div class="svc-desc">${esc(a.hours)}</div></div>
+          <div class="svc-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l7 6-7 6"/></svg></div>
+        </button>`;
+      }).join('')}
+    </div>
+    ${(state.myBookings || []).length ? `
+    <div class="section-head" style="margin-top:30px;"><h2 style="font-size:18px;">${L.amenityBooking.myBookings}</h2></div>
+    <div class="svc-list">
+      ${state.myBookings.map(m => {
+        const d = new Date(m.date + 'T00:00:00');
+        const when = isNaN(d) ? esc(m.date) : d.toLocaleDateString(state.lang, { weekday: 'short', day: 'numeric', month: 'short' });
+        const dur = L.amenityBooking.durations[AMEN_DURATIONS.indexOf(m.duration)] || esc(m.duration);
+        return `
+        <div class="svc-row svc-row-info">
+          <div class="svc-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${amenityIcons[m.amenityKey] || amenityIcons.other}</svg></div>
+          <div class="svc-info"><div class="svc-name">${esc(m.amenityName)}</div><div class="svc-desc">${when} · ${esc(m.timeSlot)} · ${dur}</div></div>
+          <button type="button" class="btn-cancel-booking" data-action="cancel-booking" data-booking="${m.id}">${L.amenityBooking.cancelBtn}</button>
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+  </div>
+`;
+
+const AMEN_DURATIONS = ['1h', '2h', '3h'];
+const AMEN_MAX_DAYS = 60;      // same limit as the server
+const localDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+views.amenityBooking = () => {
+  const a = (state.amenities || []).find(x => x.id === state.activeAmenityId) || {};
+  const ab = L.amenityBooking;
+  const av = state.amenAvail, slots = av ? av.slots : [];
+  const last = new Date(); last.setDate(last.getDate() + AMEN_MAX_DAYS);
+  return `
+  <div class="form-shell">
+    <a href="#" class="back-link" data-go="amenities">${ab.back}</a>
+    <div class="form-card">
+      <h1>${esc(a.name) || ''}</h1>
+      <p class="lead" style="margin-bottom:${a.hours ? '8px' : '22px'};">${ab.lead}</p>
+      ${a.hours ? `<div class="amen-meta">${esc(a.hours)}</div>` : ''}
+      <div class="field"><label>${ab.dateLabel}</label><input type="date" id="amenDate" value="${state.amenDate || ''}" min="${localDateStr(new Date())}" max="${localDateStr(last)}"></div>
+      <div class="field"><label>${ab.durationLabel}</label><div class="pill-row" data-pillgroup="amenDuration">${ab.durations.map((d, i) => `<div class="pill ${i === (state.amenDurationIdx ?? 0) ? 'active' : ''}" data-pill="${i}">${d}</div>`).join('')}</div></div>
+      <div class="field" style="margin-bottom:24px;"><label>${ab.slotLabel}</label>
+        ${!av && state.amenLoading ? `<p class="amen-muted">${ab.loading}</p>`
+          : !slots.length ? `<p class="amen-muted">${ab.noSlots}</p>`
+          : `${slots.some(s => s.left > 0) ? '' : `<p class="amen-muted" style="margin-bottom:10px;">${ab.noFree}</p>`}
+             <div class="slot-grid ${state.amenLoading ? 'loading' : ''}">${slots.map(s => `<button type="button" class="slot ${s.left === 0 ? 'full' : ''} ${state.amenSlot === s.time ? 'active' : ''}" ${s.left === 0 ? 'disabled' : ''} data-action="pick-amen-slot" data-time="${s.time}">${s.time}${s.left === 0 ? `<span>${ab.full}</span>` : ''}</button>`).join('')}</div>`}
+      </div>
+      ${state.amenBookingError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin-bottom:14px;">${esc(state.amenBookingError)}</div>` : ''}
+      <button class="btn btn-primary" data-action="submit-amenity-booking" ${state.busy || !state.amenSlot ? 'disabled' : ''}>${state.busy ? '…' : ab.confirmBtn}</button>
+    </div>
+  </div>
+`;
+};
+
+// Opens the booking screen (information-only spaces never do) and loads which times are free.
+async function handleCancelBooking(id) {
+  const ab = L.amenityBooking;
+  if (!confirm(ab.cancelConfirm)) return;
+  try { await api.cancelBooking(id); state.amenNotice = ab.cancelled; }
+  catch (err) { alert(err.message); }
+  try { state.myBookings = await api.getMyBookings(); } catch (e) { /* keep what we have */ }
+  render();
+}
+
+function openAmenityBooking(id) {
+  const a = (state.amenities || []).find(x => x.id === id);
+  if (!a || !a.bookable) return;
+  state.activeAmenityId = id; state.amenDate = localDateStr(new Date()); state.amenDurationIdx = 0;
+  state.amenSlot = null; state.amenAvail = null; state.amenBookingError = null;
+  showView('amenityBooking');
+  loadAmenityAvailability();
+}
+
+async function loadAmenityAvailability() {
+  const id = state.activeAmenityId, date = state.amenDate, duration = AMEN_DURATIONS[state.amenDurationIdx ?? 0];
+  if (!date) return;
+  state.amenLoading = true; render();
+  try {
+    const r = await api.getAmenityAvailability(id, date, duration);
+    if (id !== state.activeAmenityId || date !== state.amenDate || duration !== AMEN_DURATIONS[state.amenDurationIdx ?? 0]) return;   // an older answer arrived late
+    state.amenAvail = r;
+    if (state.amenSlot && !r.slots.some(s => s.time === state.amenSlot && s.left > 0)) state.amenSlot = null;
+    state.amenLoading = false; render();
+  } catch (err) {
+    state.amenLoading = false; state.amenBookingError = err.message; render();
+  }
+}
+
+views.documents = () => `
+  <div class="section" style="padding-top:24px; border-bottom:none;">
+    <a href="#" class="back-link" data-go="home">← ${L.nav.home}</a>
+    <div class="section-head" style="display:flex; justify-content:space-between; align-items:flex-end;">
+      <h2 style="font-size:22px;">${L.home.documents}</h2>
+      ${(state.documents || []).length > 1 ? `<button class="btn btn-secondary" style="width:auto; padding:8px 14px; font-size:12px;" data-action="download-all-documents">${L.documents.downloadAll}</button>` : ''}
+    </div>
+    <div class="svc-list">
+      ${(state.documents || []).map(d => `
+        <button data-action="view-document" data-doc="${d.id}" data-name="${esc(d.originalName)}" class="svc-row" style="width:100%; text-align:left; background:none; border:none;">
+          <div class="svc-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h6"/></svg></div>
+          <div class="svc-info"><div class="svc-name">${esc(d.originalName)}</div><div class="svc-desc">${L.documents.types[d.docType] || d.docType} · ${formatDate(d.uploadedAt)}</div></div>
+        </button>
+      `).join('') || `<div class="empty-note">${L.requests.empty}</div>`}
+    </div>
+  </div>
+`;
+
+views.payments = () => `
+  <div class="section" style="padding-top:24px; border-bottom:none;">
+    <a href="#" class="back-link" data-go="home">← ${L.nav.home}</a>
+    <div class="section-head"><h2 style="font-size:22px;">${L.payments.title}</h2></div>
+    <div class="empty" style="padding:36px 20px;">
+      <div class="ring"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></div>
+      <h3>${L.payments.pausedTitle}</h3>
+      <p>${L.payments.pausedBody}</p>
+    </div>
+  </div>
+`;
+
+views.guestParking = () => {
+  const gp = L.guestParking;
+  return `
+  <div class="form-shell">
+    <a href="#" class="back-link" data-go="home">← ${L.nav.home}</a>
+    <div class="form-card">
+      <h1>${gp.title}</h1>
+      <p class="lead">${gp.note}</p>
+      <div class="field"><label>${gp.fromLabel}</label><input id="gpFrom" value="${gp.fromValue}"></div>
+      <div class="field"><label>${gp.toLabel}</label><input id="gpTo" value="${gp.toValue}"></div>
+      <div class="field"><label>${gp.guestNameLabel}</label><input id="gpGuestName" placeholder="${gp.guestNamePh}"></div>
+      <div class="field" style="margin-bottom:24px;"><label>${gp.plateLabel}</label><input id="gpPlate" placeholder="${gp.platePh}"></div>
+      ${state.gpError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin-bottom:14px;">${state.gpError}</div>` : ''}
+      <button class="btn btn-primary" data-action="submit-guest-parking" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : gp.confirmBtn}</button>
+    </div>
+  </div>
+`;};
+
+views.management = () => `
+  <div class="detail-shell">
+    <a href="#" class="back-link" data-go="home">← ${L.nav.home}</a>
+    <h1 style="font-size:20px; font-weight:800; margin:0 0 4px 0;">${L.management.name}</h1>
+    <div class="meta" style="margin-bottom:24px;">${L.management.hours}</div>
+    <div class="svc-list">
+      ${state.managementPhone ? `
+      <a class="svc-row" href="tel:${state.managementPhone.replace(/\s+/g, '')}">
+        <div class="svc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h3l1.5 4.5-2 1.5a12 12 0 0 0 6 6l1.5-2 4.5 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 6.2 2 2 0 0 1 6 3Z"/></svg></div>
+        <div class="svc-info"><div class="svc-name">${L.management.callBtn}</div><div class="svc-desc">${state.managementPhone}</div></div>
+      </a>
+      ` : `
+      <div class="svc-row" style="cursor:default;">
+        <div class="svc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h3l1.5 4.5-2 1.5a12 12 0 0 0 6 6l1.5-2 4.5 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 6.2 2 2 0 0 1 6 3Z"/></svg></div>
+        <div class="svc-info"><div class="svc-name">${L.management.callBtn}</div></div>
+      </div>
+      `}
+      <button class="svc-row" data-go="messages">
+        <div class="svc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1Z"/></svg></div>
+        <div class="svc-info"><div class="svc-name">${L.management.sendBtn}</div></div>
+      </button>
+      <button class="svc-row" style="color:#8a1f1f;" data-go="messages">
+        <div class="svc-ic" style="color:#8a1f1f; border-color:#f0d3d3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7Z"/></svg></div>
+        <div class="svc-info"><div class="svc-name" style="color:#8a1f1f;">${L.management.emergencyBtn}</div></div>
+      </button>
+    </div>
+  </div>
+`;
+
+views.messages = () => `
+  <div class="detail-shell">
+    <a href="#" class="back-link" data-go="management">← ${L.management.title}</a>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+      ${(state.messages || []).map(m => `
+        <div style="align-self:${m.sender === 'resident' ? 'flex-end' : 'flex-start'}; max-width:82%; background:${m.sender === 'resident' ? 'var(--brand)' : 'var(--g100)'}; color:${m.sender === 'resident' ? '#fff' : 'inherit'}; border-radius:${m.sender === 'resident' ? '14px 14px 4px 14px' : '14px 14px 14px 4px'}; padding:11px 14px; font-size:13px;">${esc(m.body)}</div>
+      `).join('') || `<p style="font-size:12.5px; color:var(--g500);">${L.messages.placeholder}</p>`}
+    </div>
+    <div style="display:flex; gap:8px;">
+      <input id="messageInput" placeholder="${L.messages.placeholder}" style="flex:1; border:1.4px solid var(--g200); background:var(--g50); border-radius:20px; padding:11px 16px; font-size:13px;">
+      <button class="btn btn-primary" data-action="send-message" style="width:auto; padding:11px 18px; border-radius:20px;" ${state.busy ? 'disabled' : ''}>→</button>
+    </div>
+  </div>
+`;
+
+views.notifications = () => `
+  <div class="section" style="padding-top:24px; border-bottom:none;">
+    <a href="#" class="back-link" data-go="profile">← ${L.nav.profile}</a>
+    <div class="section-head"><h2 style="font-size:22px;">${L.notifications.title}</h2></div>
+    <div class="svc-list">
+      ${STATIC().notifications.map(n => `
+        <div class="svc-row" style="cursor:default;">
+          <div class="svc-ic">${svcIcon(notifIcons[n[0]] || 'M12 8v4M12 16h.01', 18)}</div>
+          <div class="svc-info"><div class="svc-name" style="font-size:13.5px;">${n[1]}</div><div class="svc-desc">${n[2]}</div></div>
+          <div style="font-size:11px; color:var(--g500); white-space:nowrap;">${n[3]}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+`;
+
+views.personalInfo = () => `
+  <div class="detail-shell">
+    <a href="#" class="back-link" data-go="profile">← ${L.nav.profile}</a>
+    <h1 style="font-size:20px; font-weight:800; margin:0 0 6px 0;">${L.personalInfo.title}</h1>
+    <p style="font-size:12.5px; color:var(--g500); margin:0 0 22px 0; line-height:1.5;">${L.personalInfo.lockedNote}</p>
+    <div class="field"><label>${L.personalInfo.fullNameLabel}</label><input value="${esc(state.resident.firstName)} ${esc(state.resident.lastName)}" disabled></div>
+    <div class="field"><label>${L.personalInfo.aptLabel}</label><input value="${esc(state.resident.apartmentNumber)}, ${L.home.buildingWord} ${esc(state.resident.buildingCode)}" disabled></div>
+    <div class="field"><label>${L.personalInfo.parkingLabel}</label><input value="${esc(state.resident.parkingSpot) || ''}" disabled></div>
+    <div style="height:1px; background:var(--g200); margin:22px 0;"></div>
+    <div class="field"><label>${L.personalInfo.emailLabel}</label><input id="piEmail" value="${esc(state.resident.email)}"></div>
+    <div class="field" style="margin-bottom:24px;"><label>${L.personalInfo.phoneLabel}</label><input id="piPhone" value="${esc(state.resident.phone) || ''}"></div>
+    ${state.saveMessage ? `<div style="color:var(--brand-dark); font-size:12.5px; font-weight:600; margin-bottom:14px;">${state.saveMessage}</div>` : ''}
+    <button class="btn btn-primary" data-action="save-contact" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.personalInfo.saveBtn}</button>
+
+    <div style="height:1px; background:var(--g200); margin:28px 0 22px 0;"></div>
+    <h2 style="font-size:15px; font-weight:800; margin:0 0 14px 0;">${L.personalInfo.pwdTitle}</h2>
+    <div class="field"><label>${L.personalInfo.pwdCurrent}</label><input type="password" id="piPwdCurrent" autocomplete="current-password"></div>
+    <div class="field"><label>${L.personalInfo.pwdNew}</label><input type="password" id="piPwdNew" autocomplete="new-password"></div>
+    <div class="field" style="margin-bottom:20px;"><label>${L.personalInfo.pwdConfirm}</label><input type="password" id="piPwdConfirm" autocomplete="new-password"></div>
+    ${state.pwdError ? `<div style="color:#8a1f1f; font-size:12.5px; font-weight:600; margin-bottom:14px;">${state.pwdError}</div>` : ''}
+    ${state.pwdSaved ? `<div style="color:var(--brand-dark); font-size:12.5px; font-weight:600; margin-bottom:14px;">${L.personalInfo.pwdSaved}</div>` : ''}
+    <button class="btn btn-secondary" data-action="save-password" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.personalInfo.pwdSaveBtn}</button>
+
+    <div style="height:1px; background:var(--g200); margin:28px 0 22px 0;"></div>
+    <h2 style="font-size:15px; font-weight:800; margin:0 0 8px 0;">${L.personalInfo.logoutEverywhereTitle}</h2>
+    <p style="font-size:12.5px; color:var(--g500); margin:0 0 14px 0; line-height:1.5;">${L.personalInfo.logoutEverywhereNote}</p>
+    <button class="btn btn-secondary" data-action="logout-everywhere" ${state.busy ? 'disabled' : ''}>${state.busy ? '…' : L.personalInfo.logoutEverywhereBtn}</button>
+  </div>
+`;
+
+const tabIcons = {
+  home: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h4v-6h2v6h4a1 1 0 0 0 1-1v-9"/>',
+  services: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  requests: '<path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><circle cx="4.5" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.1" fill="currentColor" stroke="none"/>',
+  profile: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.2-3.6 4-5.4 7-5.4s5.8 1.8 7 5.4"/>',
+};
+
+let lastRenderedView = null;
+function render() {
+  L = I18N[state.lang];
+
+  const isLogin = state.view === 'login' || state.view === 'firstTime' || state.view === 'createPassword';
+  document.body.classList.toggle('login-mode', isLogin);
+  document.querySelector('header.site').style.display = isLogin ? 'none' : '';
+  document.getElementById('tabBar').style.display = isLogin ? 'none' : '';
+  document.querySelector('footer.site').style.display = isLogin ? 'none' : '';
+
+  if (!isLogin && state.resident) {
+    document.getElementById('aptChip').textContent = `${L.aptPrefix} ${state.resident.apartmentNumber}`;
+    document.getElementById('parkingChip').textContent = `${L.parkingPrefix} ${state.resident.parkingSpot || '—'}`;
+  }
+  document.getElementById('footerRights').textContent = L.footer.rights;
+  document.getElementById('footerLinks').innerHTML = `<a href="#">${L.footer.privacy}</a><a href="#">${L.footer.terms}</a><a href="#">${L.footer.contact}</a>`;
+
+  document.getElementById('mainNav').innerHTML = ['home', 'services', 'requests', 'profile'].map(k =>
+    `<a href="#" data-go="${k}" class="${state.view === k ? 'active' : ''}">${L.nav[k]}</a>`
+  ).join('');
+
+  document.getElementById('tabBar').innerHTML = ['home', 'services', 'requests', 'profile'].map(k =>
+    `<button class="tab-item ${state.view === k ? 'active' : ''}" data-go="${k}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${tabIcons[k]}</svg>
+      ${L.nav[k]}
+    </button>`
+  ).join('');
+
+  document.getElementById('viewRoot').innerHTML = (views[state.view] ? views[state.view]() : views.login());
+  // Opening a screen starts at the top; redrawing the same screen (picking a time slot, a pill…) keeps the position.
+  if (state.view !== lastRenderedView) scrollViewToTop();
+  lastRenderedView = state.view;
+}
+
+// Below 900px <main> is the scrolling area (header and tab bar stay put); on desktop it is the page itself.
+function scrollViewToTop() {
+  const main = document.querySelector('main');
+  if (main && getComputedStyle(main).overflowY === 'auto') main.scrollTo({ top: 0, behavior: 'smooth' });
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function loadInitialData() {
+  const [resident, requests, settings] = await Promise.all([api.getMe(), api.getRequests(), api.getSettings().catch(() => null)]);
+  state.resident = resident;
+  state.requests = requests;
+  if (settings) { state.services = settings.services || null; state.managementPhone = settings.managementPhone || null; }
+}
+
+// Services management currently offers, in display order. Before the
+// settings have loaded (or if that call failed) everything is shown, so a
+// hiccup never hides the whole services screen.
+function enabledServices() {
+  if (!state.services) return serviceOrder;
+  return serviceOrder.filter(k => !state.services[k] || state.services[k].enabled);
+}
+
+function servicePrice(key) {
+  const sv = state.services && state.services[key];
+  return sv && sv.price !== null && sv.price !== undefined ? sv.price : null;
+}
+
+function fmtPrice(n) {
+  const localeMap = { fr:'fr-CA', en:'en-CA', uk:'uk-UA', es:'es-MX' };
+  return new Intl.NumberFormat(localeMap[state.lang] || 'fr-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: Number.isInteger(n) ? 0 : 2 }).format(n);
+}
+
+async function goHome() {
+  state.view = 'home';
+  render();
+}
+
+async function showView(key) {
+  state.amenNotice = null;
+  lastRenderedView = null;          // explicit navigation always starts at the top, even to the same screen
+  state.view = key;
+  state.loginError = null;
+  state.formError = null;
+  state.saveMessage = null;
+  state.firstTimeError = null;
+  state.createPasswordError = null;
+  state.pwdError = null;
+  state.pwdSaved = false;
+  state.firstTimeSent = false;
+  render();
+}
+
+async function handleLoginSubmit(email, password) {
+  state.busy = true; state.loginError = null; render();
+  try {
+    const { token } = await api.login(email, password);
+    api.setToken(token);
+    await loadInitialData();
+    state.busy = false;
+    await goHome();
+  } catch (err) {
+    state.busy = false;
+    state.loginError = err.message;
+    render();
+  }
+}
+
+async function handleForgotPassword(email) {
+  state.busy = true; state.forgotPasswordError = null; render();
+  try {
+    await api.forgotPassword(email);
+    state.busy = false;
+    state.forgotPasswordSent = true;
+    render();
+  } catch (err) {
+    state.busy = false;
+    state.forgotPasswordError = err.message;
+    render();
+  }
+}
+
+async function handleCheckEmail(email) {
+  state.busy = true; state.firstTimeError = null; render();
+  try {
+    await api.checkEmail(email);
+    state.busy = false;
+    state.firstTimeSent = true;
+    render();
+  } catch (err) {
+    state.busy = false;
+    state.firstTimeError = err.message;
+    render();
+  }
+}
+
+async function handleCreatePassword(password, confirmPassword) {
+  if (password.length < 8) {
+    state.createPasswordError = L.createPassword.tooShort;
+    render();
+    return;
+  }
+  if (password !== confirmPassword) {
+    state.createPasswordError = L.createPassword.mismatch;
+    render();
+    return;
+  }
+  state.busy = true; state.createPasswordError = null; render();
+  try {
+    const { token } = await api.setPassword(state.pendingActivationEmail, state.pendingActivationToken, password);
+    api.setToken(token);
+    await loadInitialData();
+    state.busy = false;
+    state.pendingActivationEmail = undefined;
+    state.pendingActivationToken = undefined;
+    await goHome();
+  } catch (err) {
+    state.busy = false;
+    state.createPasswordError = err.message;
+    render();
+  }
+}
+
+async function handleSubmitRequest() {
+  const textarea = document.getElementById('reqDescription');
+  const description = textarea ? textarea.value.trim() : '';
+  if (!description) {
+    state.formError = L.form.descLabel + ' — ' + (state.lang === 'fr' ? 'requis' : 'required');
+    render();
+    return;
+  }
+  const preferredDate = L.form.dateOptions[state.selectedDateIdx ?? 1];
+  const preferredTime = L.form.timeOptions[state.selectedTimeIdx ?? 1];
+  state.busy = true; state.formError = null; render();
+  try {
+    const created = await api.createRequest({ category: state.activeService, description, preferredDate, preferredTime });
+    state.lastCreatedId = created.id;
+
+    // Upload any selected photo/video now that the request exists.
+    if (state.reqPhotoFile) await api.uploadAttachment(created.id, state.reqPhotoFile);
+    if (state.reqVideoFile) await api.uploadAttachment(created.id, state.reqVideoFile);
+
+    state.requests = await api.getRequests();
+    state.selectedDateIdx = undefined;
+    state.selectedTimeIdx = undefined;
+    state.reqPhotoFile = undefined; state.reqPhotoName = undefined;
+    state.reqVideoFile = undefined; state.reqVideoName = undefined;
+    state.busy = false;
+    state.confirmKind = undefined;
+    state.confirmLink = null;
+    showView('confirm');
+  } catch (err) {
+    state.busy = false;
+    state.formError = err.message;
+    render();
+  }
+}
+
+async function openRequestDetail(id) {
+  try {
+    state.requestDetail = await api.getRequest(id);
+    showView('detail');
+  } catch (err) {
+    if (err.status === 401) { showView('login'); }
+  }
+}
+
+async function openBuildingNews() {
+  try { state.news = await api.getNews(); showView('buildingNews'); }
+  catch (err) { if (err.status === 401) showView('login'); }
+}
+
+async function openAmenities() {
+  try { [state.amenities, state.myBookings] = await Promise.all([api.getAmenities(), api.getMyBookings().catch(() => [])]); showView('amenities'); }
+  catch (err) { if (err.status === 401) showView('login'); }
+}
+
+async function openDocuments() {
+  try { state.documents = await api.getDocuments(); showView('documents'); }
+  catch (err) { if (err.status === 401) showView('login'); }
+}
+
+async function openMessages() {
+  try { state.messages = await api.getMessages(); showView('messages'); }
+  catch (err) { if (err.status === 401) showView('login'); }
+}
+
+async function openManagement() {
+  try { const s = await api.getSettings(); state.managementPhone = s.managementPhone; showView('management'); }
+  catch (err) { if (err.status === 401) showView('login'); else showView('management'); }
+}
+
+async function handleSubmitAmenityBooking() {
+  const ab = L.amenityBooking;
+  if (!state.amenSlot) { state.amenBookingError = ab.pickSlot; render(); return; }
+  const payload = { date: state.amenDate, timeSlot: state.amenSlot, duration: AMEN_DURATIONS[state.amenDurationIdx ?? 0] };
+  state.busy = true; state.amenBookingError = null; render();
+  try {
+    await api.bookAmenity(state.activeAmenityId, payload);
+    state.busy = false;
+    state.confirmKind = 'booking';
+    state.confirmLink = 'amenities';
+    showView('confirm');
+  } catch (err) {
+    // Someone else may have just taken it: say so and show the fresh picture of what is still free.
+    state.busy = false; state.amenSlot = null;
+    state.amenBookingError = err.status === 409 ? ab.taken : err.message;
+    await loadAmenityAvailability();
+  }
+}
+
+async function handleSubmitGuestParking() {
+  const startDate = document.getElementById('gpFrom').value.trim();
+  const endDate = document.getElementById('gpTo').value.trim();
+  const guestName = document.getElementById('gpGuestName').value.trim();
+  const licensePlate = document.getElementById('gpPlate').value.trim();
+  if (!guestName) {
+    state.gpError = L.guestParking.guestNameLabel + ' — ' + (state.lang === 'fr' ? 'requis' : 'required');
+    render();
+    return;
+  }
+  state.busy = true; state.gpError = null; render();
+  try {
+    await api.createGuestParking({ guestName, licensePlate, startDate, endDate });
+    state.busy = false;
+    state.confirmKind = 'booking';
+    state.confirmLink = null;
+    showView('confirm');
+  } catch (err) {
+    state.busy = false;
+    state.gpError = err.message;
+    render();
+  }
+}
+
+async function handleSendMessage() {
+  const input = document.getElementById('messageInput');
+  const body = input ? input.value.trim() : '';
+  if (!body) return;
+  state.busy = true; render();
+  try {
+    await api.sendMessage(body);
+    state.messages = await api.getMessages();
+    state.busy = false;
+    render();
+  } catch (err) {
+    state.busy = false;
+    render();
+  }
+}
+
+// Documents (like attachments) are behind auth, so fetch with the token
+// and open the result as a blob URL rather than using a plain <a href>.
+async function viewDocument(docId, filename) {
+  try {
+    const token = api.getToken();
+    const res = await fetch(`/api/documents/${docId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error('Could not load the document.');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || 'document';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function downloadAllDocuments() {
+  try {
+    const token = api.getToken();
+    const res = await fetch('/api/documents/download-all', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error(L.documents.downloadAllError);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `documents-${(window.COMPANY_NAME || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'all'}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function handleSaveContact() {
+  const email = document.getElementById('piEmail').value.trim();
+  const phone = document.getElementById('piPhone').value.trim();
+  state.busy = true; state.saveMessage = null; render();
+  try {
+    await api.updateMe({ email, phone });
+    state.resident.email = email;
+    state.resident.phone = phone;
+    state.busy = false;
+    state.saveMessage = state.lang === 'fr' ? 'Enregistré.' : 'Saved.';
+    render();
+  } catch (err) {
+    state.busy = false;
+    state.saveMessage = err.message;
+    render();
+  }
+}
+
+async function handleSavePassword() {
+  const pi = L.personalInfo;
+  const currentPassword = document.getElementById('piPwdCurrent').value;
+  const newPassword = document.getElementById('piPwdNew').value;
+  const confirmPassword = document.getElementById('piPwdConfirm').value;
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    state.pwdError = pi.pwdAllRequired; state.pwdSaved = false; render(); return;
+  }
+  if (newPassword.length < 8) {
+    state.pwdError = pi.pwdTooShort; state.pwdSaved = false; render(); return;
+  }
+  if (newPassword !== confirmPassword) {
+    state.pwdError = pi.pwdMismatch; state.pwdSaved = false; render(); return;
+  }
+
+  state.busy = true; state.pwdError = null; state.pwdSaved = false; render();
+  try {
+    const { token } = await api.changePassword(currentPassword, newPassword);
+    // Changing the password revokes every token issued before this
+    // moment — including the one this very request just used — so the
+    // fresh one from the response has to replace it, or the next action
+    // would otherwise fail as if logged out.
+    if (token) api.setToken(token);
+    state.busy = false;
+    state.pwdSaved = true;
+    render();
+  } catch (err) {
+    state.busy = false;
+    state.pwdError = err.message;
+    render();
+  }
+}
+
+function handleLogout() {
+  api.clearToken();
+  state.resident = null;
+  state.requests = [];
+  showView('login');
+}
+
+async function handleLogoutEverywhere() {
+  if (!confirm(L.personalInfo.logoutEverywhereConfirm)) return;
+  state.busy = true; render();
+  try {
+    await api.logoutEverywhere();
+  } catch (err) {
+    // Even a network hiccup here doesn't change what happens next: the
+    // call either revoked every token or it didn't, but either way this
+    // device's own copy is about to be discarded regardless, so the
+    // person still ends up signed out, which is what they asked for.
+  }
+  state.busy = false;
+  handleLogout();
+}
+
+// Attachment downloads require the Bearer token, so a plain <a href> won't
+// work (the browser sends no custom headers on navigation). Fetch it with
+// the token instead, then open the result as a blob URL.
+async function viewAttachment(requestId, attachmentId) {
+  try {
+    const token = api.getToken();
+    const res = await fetch(`/api/requests/${requestId}/attachments/${attachmentId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw new Error('Could not load the file.');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+document.addEventListener('submit', (e) => {
+  if (e.target && e.target.id === 'loginForm') {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    handleLoginSubmit(email, password);
+  }
+  if (e.target && e.target.id === 'firstTimeForm') {
+    e.preventDefault();
+    const email = document.getElementById('firstTimeEmail').value.trim();
+    handleCheckEmail(email);
+  }
+  if (e.target && e.target.id === 'forgotPasswordForm') {
+    e.preventDefault();
+    handleForgotPassword(document.getElementById('forgotEmail').value.trim());
+  }
+  if (e.target && e.target.id === 'createPasswordForm') {
+    e.preventDefault();
+    const password = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+    handleCreatePassword(password, confirm);
+  }
+});
+
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'amenDate' && e.target.value) {
+    state.amenDate = e.target.value; state.amenSlot = null; state.amenBookingError = null; loadAmenityAvailability();
+  }
+  if (e.target && e.target.id === 'reqPhotoInput') {
+    const file = e.target.files[0];
+    if (file) { state.reqPhotoFile = file; state.reqPhotoName = file.name; render(); }
+  }
+  if (e.target && e.target.id === 'reqVideoInput') {
+    const file = e.target.files[0];
+    if (file) { state.reqVideoFile = file; state.reqVideoName = file.name; render(); }
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && state.langMenuOpen) { state.langMenuOpen = false; render(); }
+});
+
+document.addEventListener('click', (e) => {
+  const langMenuBtn = e.target.closest('[data-action="toggle-lang-menu"]');
+  if (langMenuBtn) { state.langMenuOpen = !state.langMenuOpen; render(); return; }
+  const langBtn = e.target.closest('[data-setlang]');
+  if (langBtn) { state.lang = langBtn.dataset.setlang; state.langMenuOpen = false; render(); return; }
+  // A click anywhere else closes an open language menu (and carries on as normal).
+  if (state.langMenuOpen && !e.target.closest('.lang-menu-wrap')) { state.langMenuOpen = false; render(); }
+
+  const filterBtn = e.target.closest('[data-filter]');
+  if (filterBtn) { state.filter = filterBtn.dataset.filter; render(); return; }
+
+  const pillEl = e.target.closest('.pill-row .pill');
+  if (pillEl) {
+    const group = pillEl.closest('[data-pillgroup]').dataset.pillgroup;
+    const idx = parseInt(pillEl.dataset.pill, 10);
+    if (group === 'date') state.selectedDateIdx = idx;
+    if (group === 'time') state.selectedTimeIdx = idx;
+    if (group === 'amenDuration') { state.amenDurationIdx = idx; state.amenSlot = null; loadAmenityAvailability(); return; }
+    render();
+    return;
+  }
+
+  const actionBtn = e.target.closest('[data-action]');
+  if (actionBtn) {
+    e.preventDefault();
+    const action = actionBtn.dataset.action;
+    if (action === 'submit-request') handleSubmitRequest();
+    if (action === 'cancel-booking') handleCancelBooking(actionBtn.dataset.booking);
+    if (action === 'pick-amen-slot') { state.amenSlot = actionBtn.dataset.time; state.amenBookingError = null; render(); }
+    if (action === 'save-contact') handleSaveContact();
+    if (action === 'save-password') handleSavePassword();
+    if (action === 'logout-everywhere') handleLogoutEverywhere();
+    if (action === 'logout') handleLogout();
+    if (action === 'view-attachment') viewAttachment(actionBtn.dataset.req, actionBtn.dataset.att);
+    if (action === 'submit-amenity-booking') handleSubmitAmenityBooking();
+    if (action === 'submit-guest-parking') handleSubmitGuestParking();
+    if (action === 'send-message') handleSendMessage();
+    if (action === 'view-document') viewDocument(actionBtn.dataset.doc, actionBtn.dataset.name);
+    if (action === 'download-all-documents') downloadAllDocuments();
+    return;
+  }
+
+  const goEl = e.target.closest('[data-go]');
+  if (goEl) {
+    e.preventDefault();
+    const key = goEl.dataset.go;
+    if (key === 'requestForm') { state.activeService = goEl.dataset.svc || 'plumbing'; showView('requestForm'); return; }
+    if (key === 'newsDetail') { state.activeNews = parseInt(goEl.dataset.news, 10); showView('newsDetail'); return; }
+    if (key === 'amenityBooking') { openAmenityBooking(parseInt(goEl.dataset.amenity, 10)); return; }
+    if (key === 'detail') { openRequestDetail(goEl.dataset.req); return; }
+    if (key === 'buildingNews') { openBuildingNews(); return; }
+    if (key === 'amenities') { openAmenities(); return; }
+    if (key === 'documents') { openDocuments(); return; }
+    if (key === 'messages') { openMessages(); return; }
+    if (key === 'management') { openManagement(); return; }
+    // Opening any other screen (e.g. coming back to "Forgot password") starts it fresh,
+    // instead of showing the previous "email sent" confirmation again.
+    state.forgotPasswordSent = false; state.forgotPasswordError = null;
+    showView(key);
+  }
+});
+
+(async function init() {
+  L = I18N[state.lang];
+
+  // A resident arriving via their activation email link — ?activate=TOKEN&email=...
+  // Takes priority over an existing session: if someone is testing a
+  // second account on the same browser, the link should still work.
+  const params = new URLSearchParams(window.location.search);
+  const activateToken = params.get('activate');
+  const activateEmail = params.get('email');
+  if (activateToken && activateEmail) {
+    state.pendingActivationToken = activateToken;
+    state.pendingActivationEmail = activateEmail;
+    state.view = 'createPassword';
+    window.history.replaceState({}, '', window.location.pathname);
+    render();
+    return;
+  }
+
+  if (api.getToken()) {
+    try {
+      await loadInitialData();
+      state.view = 'home';
+    } catch (err) {
+      api.clearToken();
+      state.view = 'login';
+    }
+  }
+  render();
+})();
+
+</script>
+<script>
+// Demo-only overrides: file previews/downloads need a real server, so say so politely.
+(function () {
+  const TEXT = {
+    en: 'Demo mode — file previews aren’t included.',
+    fr: 'Mode démo — l’aperçu des fichiers n’est pas inclus.',
+    uk: 'Демо-режим — перегляд файлів недоступний.',
+    es: 'Modo demo — la vista previa de archivos no está incluida.',
+  };
+  function toast() {
+    const old = document.getElementById('demoToast'); if (old) old.remove();
+    const t = document.createElement('div');
+    t.id = 'demoToast'; t.className = 'demo-toast'; t.textContent = TEXT[state.lang] || TEXT.en;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2600);
+  }
+  window.viewDocument = async function () { toast(); };
+  window.downloadAllDocuments = async function () { toast(); };
+  window.viewAttachment = async function () { toast(); };
+})();
+
+</script>
+</body>
+</html>
