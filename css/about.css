@@ -11,9 +11,9 @@
 .timeline article>h3{grid-column:2}
 .about-work-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:40px}
 .about-work-item{display:flex;flex-direction:column;gap:16px}
-.about-work-item img{width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;transition:transform .6s var(--ease)}
+.about-work-item img{width:100%;height:auto;aspect-ratio:3/4;object-fit:cover;transition:transform 1.4s var(--ease-soft)}
 .about-work-item{overflow:hidden}
-.about-work-item:hover img{transform:scale(1.03)}
+@media(hover:hover) and (pointer:fine){.about-work-item:hover img{transform:scale(1.03)}}
 .about-work-item span{font-size:var(--t-h3);font-weight:500;letter-spacing:-.03em}
 .about-places{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--gap) clamp(32px,5vw,96px);align-items:start}
 .about-city{margin:0}
@@ -27,4 +27,11 @@
 }
 @media(max-width:640px){
  .about-work-grid{grid-template-columns:1fr}
+}
+/* The photographs open as they scroll in instead of fading. */
+@media(prefers-reduced-motion:no-preference){
+ .js .about-city.reveal,.js .about-work-item.reveal{opacity:1;transform:none;clip-path:inset(0 0 100% 0);transition:clip-path var(--t-open) var(--ease-in-out);transition-delay:var(--delay,0ms)}
+ .js .about-city.reveal img,.js .about-work-item.reveal img{transform:scale(1.1)}
+ .js .about-city.reveal.is-in,.js .about-work-item.reveal.is-in{clip-path:inset(0)}
+ .js .about-city.reveal.is-in img,.js .about-work-item.reveal.is-in img{transform:none;transition:transform 1.6s var(--ease-soft)}
 }
