@@ -1,0 +1,18 @@
+.development-final-invitation{padding-bottom:var(--section)}
+/* Development: portfolio */
+.development-approach-intro{max-width:60ch;font-size:19px;margin-bottom:48px}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:56px var(--gap)}
+.portfolio-project{display:flex;flex-direction:column;gap:24px;min-width:0}
+.portfolio-logo{display:grid;place-items:center;background:#fff;height:240px;padding:28px}
+.portfolio-logo-dark{background:#0b0b0b}
+.portfolio-logo img{width:100%;height:100%;max-width:200px;max-height:170px;object-fit:contain}
+.portfolio-copy{display:flex;flex-direction:column;align-items:flex-start;flex:1;min-width:0}
+.portfolio-copy h3{font-size:26px}
+.portfolio-copy p{font-size:16px;margin-bottom:20px}
+.portfolio-copy .text-link{margin-top:auto}
+@media(max-width:900px){
+ .portfolio-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+ .portfolio-grid{grid-template-columns:1fr}
+}

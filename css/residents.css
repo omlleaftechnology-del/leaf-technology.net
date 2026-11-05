@@ -1,0 +1,61 @@
+.residents-final-invitation{padding-bottom:var(--section)}
+/* Unitly: capabilities, formats and demos */
+.feature-group{font-size:var(--t-lead);font-weight:600;letter-spacing:-.015em;margin:0 0 16px}
+.unitly-feature-grid+.feature-group{margin-top:48px}
+.unitly-feature-grid,.unitly-benefit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 16px}
+.unitly-info-card{min-width:0;display:flex;flex-direction:column;background:var(--surface);padding:clamp(24px,2.4vw,36px);min-height:250px;transition:background-color .3s,transform .3s var(--ease)}
+.unitly-info-card:hover{background:var(--field);transform:translateY(-4px)}
+.unitly-card-top{order:0;margin-bottom:auto;padding-bottom:28px;font-size:40px;line-height:1}
+.unitly-card-top:empty{display:none}
+.unitly-info-card h3{font-size:var(--t-h3);margin-bottom:10px}
+.unitly-info-card p{margin:0;font-size:16px}
+.unitly-feature-grid:not(.is-soon),.unitly-benefit-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.unitly-feature-grid:not(.is-soon)>.unitly-info-card:first-child,.unitly-benefit-grid>.unitly-info-card:first-child{grid-column:span 2}
+.unitly-feature-grid:not(.is-soon)>.unitly-info-card:first-child .unitly-card-top,.unitly-benefit-grid>.unitly-info-card:first-child .unitly-card-top{font-size:56px}
+.unitly-feature-grid.is-soon{grid-template-columns:repeat(2,minmax(0,1fr))}
+.is-soon .unitly-info-card{background:var(--deep);color:var(--deep-ink);min-height:220px}
+.is-soon .unitly-info-card:hover{background:#2a2a2a}
+.is-soon .unitly-info-card h3,.is-soon .unitly-info-card p{color:var(--deep-ink)}
+.unitly-benefits{padding-top:0}
+.unitly-benefits .unitly-info-card{background:var(--light)}
+.unitly-benefits .unitly-info-card:hover{background:var(--surface)}
+.unitly-benefit-grid .unitly-info-card:last-child{grid-column:auto}
+.format-brand-note{max-width:60ch;font-size:18px;margin-bottom:40px}
+.format-phone-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.format-phone-card{background:var(--surface);padding:clamp(24px,3vw,44px);min-width:0}
+.format-phone-caption h3{font-size:clamp(26px,2.4vw,36px);letter-spacing:-.04em}
+.format-phone-caption p{margin-bottom:16px}
+.format-platform{font-size:var(--t-small);font-weight:700;color:var(--accent)}
+.format-single-demo{position:relative;margin-top:16px;background:#eceff2;overflow:hidden}
+/* The phone build brings its own iPhone frame and backdrop; on narrow screens it is scaled as one piece. */
+.resident-phone-demo{display:block;width:100%;height:940px;border:0;background:transparent;transform-origin:top left}
+.format-preview-note{font-size:var(--t-small);color:var(--muted);text-align:center;margin:20px auto 0;max-width:60ch}
+.app-comparison,.app-customization,.unitly-admin-preview{margin-top:clamp(56px,5vw,80px)}
+.app-comparison h3,.app-customization>h3,.unitly-admin-preview>h3{font-size:clamp(28px,2.8vw,44px);letter-spacing:-.04em;margin-bottom:24px}
+.app-comparison-scroll{overflow-x:auto;background:var(--light)}
+.app-comparison table{border-collapse:collapse;width:100%;min-width:560px;table-layout:fixed;font-size:16px;line-height:1.55}
+.app-comparison th,.app-comparison td{padding:20px 24px;text-align:left;vertical-align:top;border-bottom:1px solid var(--surface)}
+.app-comparison thead{background:var(--surface)}
+.app-comparison th:first-child{width:24%}
+.app-comparison tbody th{font-weight:600}
+.app-comparison tr:last-child>*{border-bottom:0}
+.app-customization-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
+.app-customization-grid p{margin:0}
+.unitly-admin-preview>p{max-width:60ch}
+.admin-demo{margin:24px 0 20px;min-width:0;background:var(--surface)}
+.admin-demo iframe{display:block;width:100%;height:780px;border:0;background:transparent}
+@media(max-width:900px){
+ .app-customization-grid,.unitly-benefit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .unitly-feature-grid:not(.is-soon),.unitly-benefit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .unitly-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+ .unitly-feature-grid:not(.is-soon),.unitly-benefit-grid,.unitly-feature-grid.is-soon{grid-template-columns:1fr}
+ .unitly-feature-grid:not(.is-soon)>.unitly-info-card:first-child,.unitly-benefit-grid>.unitly-info-card:first-child{grid-column:auto}
+ .app-customization-grid,.unitly-feature-grid,.unitly-benefit-grid,.unitly-benefits .unitly-benefit-grid,.format-phone-grid{grid-template-columns:1fr}
+ .admin-demo iframe{height:560px}
+ .unitly-info-card{min-height:0}
+ .unitly-info-card h3{font-size:20px}
+ .unitly-card-top{font-size:32px;padding-bottom:20px}
+}
+.app-customization-grid .card-emoji{font-size:36px;margin-bottom:20px}

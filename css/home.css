@@ -1,0 +1,70 @@
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+/* Home: the first screen, one direction per slide */
+.banner{position:relative;padding-bottom:clamp(40px,5vw,72px)}
+.banner-slides{display:grid}
+.banner-slide{grid-area:1/1;visibility:hidden;opacity:0;transition:opacity .6s ease,visibility 0s .6s}
+.banner-slide.is-active{visibility:visible;opacity:1;transition:opacity .6s ease;z-index:1}
+.banner-inner{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:var(--gap) clamp(32px,5vw,96px);align-items:center;min-height:calc(100svh - var(--header) - 140px);padding-top:clamp(16px,3svh,40px)}
+.banner :is(h1,h2){font-size:clamp(48px,5.8vw,100px);line-height:.95;letter-spacing:-.055em;margin-bottom:32px}
+.banner-copy>p{font-size:var(--t-lead);line-height:1.5;max-width:38ch;margin-bottom:36px}
+.banner-photo{margin:0;height:min(74svh,720px);overflow:hidden;background:var(--surface)}
+.banner-photo img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 7s linear}
+.banner-slide.is-active .banner-photo img{transform:scale(1)}
+.banner-controls{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:clamp(24px,3svh,40px)}
+.banner-controls[hidden]{display:none}
+.slide-selectors{display:flex;flex-wrap:wrap;gap:12px 40px}
+.slide-selector{position:relative;border:0;background:transparent;padding:16px 0 0;min-width:120px;text-align:left;font-size:var(--t-body);font-weight:600;color:var(--muted);transition:color .2s}
+.slide-selector:hover,.slide-selector[aria-pressed=true]{color:var(--ink)}
+.slide-progress{position:absolute;left:0;right:0;top:0;height:3px;background:var(--field);overflow:hidden}
+.slide-progress::after{content:'';position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left}
+.slide-selector[aria-pressed=true] .slide-progress::after{transform:scaleX(1)}
+.banner.is-playing .slide-selector[aria-pressed=true] .slide-progress::after{animation:progress var(--slide-time,7s) linear both}
+.carousel-arrows{display:flex;gap:4px}
+.carousel-arrows button{min-width:52px;min-height:52px;padding:0 16px;border:0;background:var(--surface);font-weight:600;font-size:var(--t-small);transition:background-color .2s}
+.carousel-arrows button:hover{background:var(--field)}
+/* Home: the company, inset on a deep panel */
+.story-panel{padding:0 20px 20px}
+.story-inner{position:relative;overflow:hidden;min-height:110svh;background:var(--deep);color:var(--deep-ink);display:grid;grid-template-columns:63% 1fr;padding:56px calc(var(--gutter) - 20px)}
+.story-inner h2{grid-area:1/1;font-size:clamp(40px,4.6vw,72px);color:var(--deep-ink);margin:0;align-self:start}
+.story-text{grid-area:1/2;display:flex;flex-direction:column;align-items:flex-start;gap:56px;max-width:360px;position:relative;z-index:1}
+.story-text h3{font-size:var(--t-lead);color:var(--deep-ink);margin-bottom:12px}
+.story-text p{color:var(--deep-ink);margin:0}
+.story-text .button{background:var(--deep-ink);color:var(--deep)}
+.story-text .button:hover{background:#ddd}
+.story-photo{position:absolute;left:calc(var(--gutter) - 20px);bottom:-7vw;width:42vw;aspect-ratio:1;margin:0;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2100 -2450 4200 4550'%3E%3Cpath d='m-90 2030 45-863a95 95 0 0 0-111-98l-859 151 116-320a65 65 0 0 0-20-73l-941-762 212-99a65 65 0 0 0 34-79l-186-572 542 115a65 65 0 0 0 73-38l105-247 423 454a65 65 0 0 0 111-57l-204-1052 327 189a65 65 0 0 0 91-27l332-652 332 652a65 65 0 0 0 91 27l327-189-204 1052a65 65 0 0 0 111 57l423-454 105 247a65 65 0 0 0 73 38l542-115-186 572a65 65 0 0 0 34 79l212 99-941 762a65 65 0 0 0-20 73l116 320-859-151a95 95 0 0 0-111 98l45 863z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2100 -2450 4200 4550'%3E%3Cpath d='m-90 2030 45-863a95 95 0 0 0-111-98l-859 151 116-320a65 65 0 0 0-20-73l-941-762 212-99a65 65 0 0 0 34-79l-186-572 542 115a65 65 0 0 0 73-38l105-247 423 454a65 65 0 0 0 111-57l-204-1052 327 189a65 65 0 0 0 91-27l332-652 332 652a65 65 0 0 0 91 27l327-189-204 1052a65 65 0 0 0 111 57l423-454 105 247a65 65 0 0 0 73 38l542-115-186 572a65 65 0 0 0 34 79l212 99-941 762a65 65 0 0 0-20 73l116 320-859-151a95 95 0 0 0-111 98l45 863z'/%3E%3C/svg%3E") center/contain no-repeat}
+.story-photo img{width:100%;height:100%;object-fit:cover;transform:scale(1.08);transition:transform 1.4s var(--ease)}
+.story-panel.is-in .story-photo img{transform:scale(1)}
+/* The company: one measured panel, the leaf sized to the text beside it. */
+.story-panel{padding:0 var(--gutter)}
+.story-inner{min-height:0;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto 1fr;gap:48px clamp(40px,6vw,112px);padding:clamp(40px,5vw,80px);align-items:start}
+.story-inner h2{grid-area:1/1}
+.story-text{grid-area:1/2/3/3;max-width:460px;gap:36px}
+.story-photo{position:relative;left:auto;bottom:auto;grid-area:2/1;width:min(100%,420px);margin:0 0 calc(clamp(40px,5vw,80px) * -1);align-self:end}
+.banner-slide.is-active :is(h1,h2),.banner-slide.is-active .banner-copy>p,.banner-slide.is-active .actions{animation:rise .8s var(--ease) both}
+.banner-slide.is-active .banner-copy>p{animation-delay:.07s}
+.banner-slide.is-active .actions{animation-delay:.14s}
+html:is([lang=ru],[lang=uk],[lang=fr]) :is(.banner h2,.banner h1){font-size:clamp(40px,5vw,84px)}
+@media(max-width:1180px){
+ .story-inner{grid-template-columns:1fr;gap:56px;padding:40px calc(var(--gutter) - 10px) 0;min-height:auto}
+ .story-text{grid-area:auto;max-width:560px}
+ .story-photo{position:relative;left:auto;bottom:auto;width:min(86vw,560px);margin:24px auto -18%;justify-self:center}
+}
+@media(max-width:900px){
+ .story-inner{grid-template-columns:1fr}
+ .story-text{grid-area:auto}
+ .story-photo{grid-area:auto;justify-self:center}
+ .banner-inner{grid-template-columns:1fr;min-height:0}
+ .banner-photo{height:min(46svh,440px)}
+ .banner-controls{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:640px){
+ .banner h2,.banner h1{font-size:10vw}
+ .slide-selectors{gap:12px 20px}
+ .slide-selector{min-width:0;font-size:15px}
+ .story-panel{padding-inline:10px}
+ .story-inner h2{font-size:8.5vw}
+ html:is([lang=ru],[lang=uk],[lang=fr]) :is(.banner h2,.banner h1){font-size:8vw}
+}
+@media(prefers-reduced-motion:reduce){
+ .story-photo img{transform:none}
+}

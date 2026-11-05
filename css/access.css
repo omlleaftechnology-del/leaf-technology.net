@@ -1,0 +1,82 @@
+.product-link{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:var(--t-body);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:7px;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);transition:text-decoration-color .2s,gap .2s var(--ease)}
+.product-link:hover{text-decoration-color:currentColor;gap:14px}
+.intercom-hero-photos{position:absolute;inset:0}
+.intercom-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.04);transition:opacity .9s ease,transform 6s linear}
+.intercom-hero-photo.is-active{opacity:1;transform:scale(1)}
+.intercom-photo-controls{position:absolute;left:0;bottom:0;display:flex;background:var(--bg)}
+.intercom-photo-controls[hidden]{display:none}
+.intercom-photo-controls button{min-width:52px;min-height:52px;padding:0 16px;border:0;border-radius:0;background:transparent;color:var(--ink);font-size:15px;font-weight:600;transition:background-color .2s}
+.intercom-photo-controls button:hover{background:var(--surface)}
+.intercom-photo-count{display:none}
+/* Smart Access: models */
+.intercom-model-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:56px var(--gap)}
+.intercom-model{min-width:0;display:flex;flex-direction:column}
+.intercom-model-image img{transition:transform .6s var(--ease)}
+.intercom-model:hover .intercom-model-image img{transform:scale(1.03)}
+.model-gallery{background:var(--surface)}
+/* Every model picture sits in the same 4:3 frame, so the cards in a row line up. */
+.intercom-model-image{position:relative;aspect-ratio:4/3;background:var(--surface);overflow:hidden}
+.intercom-model-image img{position:absolute;inset:32px;width:calc(100% - 64px);height:calc(100% - 64px);object-fit:contain;mix-blend-mode:multiply}
+.model-thumbnails{display:flex;justify-content:center;gap:8px;padding:0 24px 24px}
+.model-thumbnail{width:60px;height:60px;padding:4px;background:var(--bg);border:0;border-radius:0;display:grid;place-items:center;outline:2px solid transparent;outline-offset:-2px;transition:outline-color .2s}
+.model-thumbnail img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+.model-thumbnail[aria-pressed=true]{outline-color:var(--accent)}
+.intercom-model-copy{padding-top:28px;display:flex;flex-direction:column;flex:1}
+.intercom-model-copy h3{font-size:clamp(32px,3vw,48px);letter-spacing:-.045em;margin-bottom:12px}
+.intercom-model-copy>p{max-width:46ch;min-height:calc(2em * 1.55)}
+.model-specs{margin:16px 0 28px;display:grid}
+.model-specs>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px;padding:11px 0;font-size:15px}
+.model-specs>div{padding-inline:12px}
+.model-specs>div:nth-child(odd){background:color-mix(in srgb,var(--surface) 55%,transparent)}
+.model-specs dt{color:var(--muted)}
+.model-specs dd{margin:0}
+.intercom-model-copy .product-link,.intercom-model-copy>a:last-child{margin-top:auto}
+.access-how{background:var(--surface);padding:20px 24px;margin:4px 0 20px}
+.access-how h4{margin-bottom:6px}
+.access-how p{margin:0;font-size:16px}
+.access-config{font-size:var(--t-small);color:var(--muted)}
+.intercom-variants .feature-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);align-items:start}
+.intercom-variants .feature{background:var(--surface);padding:clamp(24px,3vw,44px);display:flex;flex-direction:column}
+.intercom-variants .feature>h3{font-size:clamp(28px,2.6vw,40px);letter-spacing:-.04em}
+.variant-intro{max-width:60ch;font-size:18px;margin-bottom:40px}
+.variant-terms{margin-top:8px;padding-top:20px}
+.variant-terms strong{font-size:16px;font-weight:600}
+.variant-terms p{font-size:16px;margin:8px 0 0}
+.subscription-services,.intercom-extras{margin-top:28px}
+.subscription-services h4,.intercom-extras h4{font-size:19px}
+.subscription-service-group{margin-top:20px}
+.subscription-service-group h5{font-size:16px;font-weight:600;margin-bottom:10px}
+.subscription-service-group ul,.intercom-extras ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.subscription-service-group li,.intercom-extras li{position:relative;padding-left:24px;font-size:16px;line-height:1.5}
+.subscription-service-group li::before{content:'';position:absolute;left:0;top:.72em;width:12px;height:2px;background:var(--accent)}
+.intercom-extras li::before{content:'+';position:absolute;left:0;color:var(--accent);font-weight:700}
+.subscription-service-group>p{font-size:16px;margin:0}
+.connection-model-note{font-size:var(--t-small);color:var(--muted);margin:16px 0 0}
+.ecosystem-partner{display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--bg);padding:16px 20px;margin-top:24px;transition:background-color .2s}
+.ecosystem-partner:hover{background:var(--light)}
+.ecosystem-partner>span:first-child{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 14px}
+.ecosystem-partner small{font-size:var(--t-small);color:var(--muted)}
+.ecosystem-partner strong{font-size:20px;letter-spacing:-.03em}
+.distributor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:56px var(--gap)}
+.distributor{min-width:0}
+.distributor-logo{height:260px;display:grid;place-items:center;background:#fff;margin-bottom:24px;padding:16px;overflow:hidden}
+.distributor-logo-crop{position:relative;overflow:hidden;width:100%}
+.distributor-logo-crop img{position:absolute;height:auto;max-width:none}
+.logo-alarme{max-width:320px;aspect-ratio:2.05}
+.logo-alarme img{width:155%;left:-28%;top:-42%}
+.logo-amike{max-width:220px;aspect-ratio:1.25}
+.logo-amike img{width:200%;left:-50%;top:-78%}
+.distributor h3{font-size:26px}
+.distributor dl{font-size:16px;margin:20px 0 0}
+.distributor dt{font-size:var(--t-small);color:var(--muted);margin-top:14px}
+.distributor dd{margin:2px 0 0;overflow-wrap:anywhere}
+.distributor dd a{text-decoration:underline;text-underline-offset:4px;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent)}
+@media(max-width:900px){
+ .distributor-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .intercom-model-grid,.intercom-variants .feature-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+ .distributor-grid{grid-template-columns:1fr}
+ .model-specs>div{grid-template-columns:1fr;gap:2px}
+}
+.devices-note{margin:32px 0 0}
