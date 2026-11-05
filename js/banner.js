@@ -26,5 +26,6 @@ document.querySelectorAll('.banner').forEach(banner=>{
  banner.addEventListener('focusin',()=>{focus=true;schedule();});
  banner.addEventListener('focusout',e=>{if(!banner.contains(e.relatedTarget)){focus=false;schedule();}});
  document.addEventListener('visibilitychange',schedule);
+ motion.addEventListener('change',e=>{if(e.matches){paused=true;show(current,false);}});
  banner.querySelector('.banner-controls').hidden=false;show(0,false);
 });

@@ -3,7 +3,7 @@ document.querySelectorAll('.model-gallery').forEach(gallery=>{
  const main=gallery.querySelector('.model-gallery-main');
  const buttons=[...gallery.querySelectorAll('.model-thumbnail')];
  buttons.forEach(button=>button.addEventListener('click',()=>{
-  const photo=button.querySelector('img');main.src=photo.getAttribute('src');main.alt=photo.alt;
+  const photo=button.querySelector('img');main.src=photo.getAttribute('src');main.alt=photo.alt;fadeInWhenLoaded(main);
   buttons.forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
  }));
 });

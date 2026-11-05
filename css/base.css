@@ -5,9 +5,9 @@
 @font-face{font-family:'Manrope';font-style:normal;font-weight:800;font-display:swap;src:url(../assets/manrope-4.ttf) format('truetype')}
 /* Black and white: white ground, black ink, greys only for surfaces. */
 :root{
- --bg:#fff;--surface:#f3f3f3;--field:#e9e9e9;--sage:#efefef;--light:#f6f6f6;
+ --bg:#fff;--surface:#f3f3f3;--field:#e9e9e9;--light:#f6f6f6;
  --ink:#111;--muted:#5c5c5c;--accent:#111;--accent-hover:#333;--accent-ink:#fff;
- --deep:#111;--deep-ink:#fff;--deep-muted:#b5b5b5;
+ --deep:#111;--deep-ink:#fff;
  --helper:#4f6b4a;
  --font:'Manrope',Arial,sans-serif;
  --gutter:clamp(20px,4vw,64px);--gap:clamp(16px,2vw,32px);--section:clamp(72px,6.5vw,96px);--header:96px;
@@ -34,8 +34,7 @@ h4,h5{font-size:19px;line-height:1.35;margin-bottom:10px;letter-spacing:-.015em}
 p{color:var(--ink);text-wrap:pretty}
 .wrap{width:calc(100% - 2*var(--gutter));max-width:1680px;margin-inline:auto}
 /* Controls */
-.button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 26px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:0;font-size:var(--t-small);font-weight:600;letter-spacing:-.01em;white-space:nowrap;transition:background-color .2s,transform .2s var(--ease)}
-.button{transition:background-color var(--t-hover) ease,color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+.button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 26px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:0;font-size:var(--t-small);font-weight:600;letter-spacing:-.01em;white-space:nowrap;transition:background-color var(--t-hover) ease,color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
 .button:active{transform:scale(.97)}
 .button span[aria-hidden]{display:inline-block;transition:transform var(--t-ui) var(--ease-out)}
 @media(hover:hover) and (pointer:fine){.button:hover{background:var(--accent-hover)}.button:hover span[aria-hidden]{transform:translate(2px,-2px)}}
@@ -109,3 +108,7 @@ html:is([lang=ru],[lang=uk],[lang=fr]){--t-display:clamp(40px,5.2vw,84px);--t-h2
  .js .hero-media{animation:load-open var(--t-open) var(--ease-in-out) 100ms both}
  .js .hero-media>img,.js .intercom-hero-photos{animation:load-settle 1400ms var(--ease-soft) 60ms both}
 }
+/* Photographs fade in when they finish loading (see js/core.js). */
+@keyframes img-in{from{opacity:0}}
+.js img.is-loading{opacity:0}
+@media(prefers-reduced-motion:no-preference){.js img.is-loaded{animation:img-in 700ms var(--ease-out) both}}

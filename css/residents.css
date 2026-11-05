@@ -25,7 +25,6 @@
 .format-phone-card{background:var(--surface);padding:clamp(24px,3vw,44px);min-width:0}
 .format-phone-caption h3{font-size:clamp(26px,2.4vw,36px);letter-spacing:-.04em}
 .format-phone-caption p{margin-bottom:16px}
-.format-platform{font-size:var(--t-small);font-weight:700;color:var(--accent)}
 .format-single-demo{position:relative;margin-top:16px;background:#eceff2;overflow:hidden}
 /* The phone build brings its own iPhone frame and backdrop; on narrow screens it is scaled as one piece. */
 .resident-phone-demo{display:block;width:100%;height:940px;border:0;background:transparent;transform-origin:top left}
