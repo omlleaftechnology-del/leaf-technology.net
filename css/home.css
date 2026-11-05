@@ -43,6 +43,13 @@
 .banner-slide.is-active :is(h1,h2),.banner-slide.is-active .banner-copy>p,.banner-slide.is-active .actions{animation:load-rise var(--t-reveal) var(--ease-expo) both}
 .banner-slide.is-active .banner-copy>p{animation-delay:.07s}
 .banner-slide.is-active .actions{animation-delay:.14s}
+/* After the first switch the outgoing slide fades out quickly before the next one comes in,
+   so the two headlines are never on screen together. */
+.banner.has-switched .banner-slide{transition:opacity 220ms cubic-bezier(.55,.055,.675,.19),visibility 0s 220ms}
+.banner.has-switched .banner-slide.is-active{transition:opacity 420ms var(--ease-out) 220ms}
+.banner.has-switched .banner-slide.is-active :is(h1,h2){animation-delay:.22s}
+.banner.has-switched .banner-slide.is-active .banner-copy>p{animation-delay:.29s}
+.banner.has-switched .banner-slide.is-active .actions{animation-delay:.36s}
 html:is([lang=ru],[lang=uk],[lang=fr]) :is(.banner h2,.banner h1){font-size:clamp(40px,5vw,84px)}
 @media(max-width:1180px){
  .story-inner{grid-template-columns:1fr;gap:32px;padding:40px calc(var(--gutter) - 10px) 0;min-height:auto}
@@ -71,4 +78,5 @@ html:is([lang=ru],[lang=uk],[lang=fr]) :is(.banner h2,.banner h1){font-size:clam
 /* Each slide's picture opens like a shutter as the slide arrives. */
 @media(prefers-reduced-motion:no-preference){
  .js .banner-slide.is-active .banner-photo{animation:load-open var(--t-open) var(--ease-in-out) 80ms both}
+ .js .banner.has-switched .banner-slide.is-active .banner-photo{animation-delay:220ms}
 }

@@ -9,7 +9,8 @@ document.querySelectorAll('.banner').forEach(banner=>{
  banner.style.setProperty('--slide-time',time+'ms');
  function playing(){return !paused&&!hover&&!focus&&!document.hidden}
  function schedule(){clearTimeout(timer);banner.classList.toggle('is-playing',playing());if(playing())timer=setTimeout(()=>show(current+1,false),time);}
- function show(index,manual){
+ function show(index,manual,first){
+  if(!first)banner.classList.add('has-switched');
   current=(index+slides.length)%slides.length;
   slides.forEach((slide,i)=>{const on=i===current;slide.classList.toggle('is-active',on);slide.setAttribute('aria-hidden',String(!on));slide.inert=!on;selectors[i].setAttribute('aria-pressed',String(on));});
   if(manual){paused=true;status.textContent=selectors[current].textContent.trim();}
@@ -27,5 +28,5 @@ document.querySelectorAll('.banner').forEach(banner=>{
  banner.addEventListener('focusout',e=>{if(!banner.contains(e.relatedTarget)){focus=false;schedule();}});
  document.addEventListener('visibilitychange',schedule);
  motion.addEventListener('change',e=>{if(e.matches){paused=true;show(current,false);}});
- banner.querySelector('.banner-controls').hidden=false;show(0,false);
+ banner.querySelector('.banner-controls').hidden=false;show(0,false,true);
 });
