@@ -86,3 +86,12 @@
 @media(max-width:900px){.client-grid{grid-template-columns:1fr}}
 @media(max-width:640px){.client-card{grid-template-columns:1fr}.client-logo{min-height:200px}}
 .client-next-note{font-size:16px;line-height:1.55;color:var(--muted);margin-top:-24px}
+/* Promo block under the feature cards: advertising for owners, offers for residents */
+.unitly-promo{margin-top:clamp(56px,6vw,96px);background:var(--surface);border-top:2px solid var(--ink);padding:clamp(32px,5vw,80px);display:grid;grid-template-columns:1fr 1fr;gap:var(--gap) 8%;align-items:end}
+.unitly-promo h3{font-size:var(--t-h2);line-height:1.02;letter-spacing:-.045em;margin:0 0 20px;hyphens:none}
+.unitly-promo-copy p{font-size:18px;margin:0}
+.unitly-promo-sides{display:grid;gap:28px}
+.unitly-promo-sides>div{border-top:1px solid #cfcfcf;padding-top:24px}
+.unitly-promo-sides h4{font-size:22px;margin-bottom:8px}
+.unitly-promo-sides p{font-size:16px;color:var(--muted);margin:0}
+@media(max-width:900px){.unitly-promo{grid-template-columns:1fr}}
