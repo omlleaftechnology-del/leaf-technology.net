@@ -95,3 +95,19 @@
 .unitly-promo-sides h4{font-size:22px;margin-bottom:8px}
 .unitly-promo-sides p{font-size:16px;color:var(--muted);margin:0}
 @media(max-width:900px){.unitly-promo{grid-template-columns:1fr}}
+/* Intercom in Unitly: how a call works for residents, then what managers get */
+.intercom-chip{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:var(--ink);color:#fff;padding:7px 12px;margin-bottom:20px}
+.intercom-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
+.intercom-step{position:relative;display:flex;flex-direction:column;min-width:0;background:var(--surface);padding:clamp(28px,3vw,44px)}
+.intercom-num{font-size:14px;font-weight:600;color:var(--muted);margin-bottom:28px}
+.intercom-emoji{font-size:48px;line-height:1;margin-bottom:24px}
+.intercom-step h3{font-size:24px}
+.intercom-step p{margin:0}
+.intercom-step:not(:last-child)::after{content:'→\fe0e';position:absolute;z-index:1;top:50%;right:calc(var(--gap) / -2);transform:translate(50%,-50%);width:36px;height:36px;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:18px}
+.intercom-note{max-width:70ch;margin:28px 0 0;font-size:17px;color:var(--muted)}
+.unitly-intercom .feature-group{margin-top:clamp(48px,5vw,72px)}
+.unitly-feature-grid.is-intercom{grid-template-columns:repeat(3,minmax(0,1fr))}
+.unitly-feature-grid.is-intercom>.unitly-info-card:first-child{grid-column:auto}
+.unitly-feature-grid.is-intercom>.unitly-info-card:first-child .unitly-card-top{font-size:40px}
+@media(max-width:900px){.unitly-feature-grid.is-intercom{grid-template-columns:1fr}.unitly-feature-grid.is-intercom>.unitly-info-card:first-child .unitly-card-top{font-size:32px}}
+@media(max-width:760px){.intercom-flow{grid-template-columns:1fr}.intercom-step:not(:last-child)::after{display:none}.intercom-emoji{font-size:40px}}
