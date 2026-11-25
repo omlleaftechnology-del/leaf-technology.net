@@ -70,22 +70,6 @@
  .unitly-card-top{font-size:32px;padding-bottom:20px}
 }
 .app-customization-grid .card-emoji{font-size:36px;margin-bottom:20px}
-/* Our clients: a client card with its logo, and an open tile for the next one */
-.client-grid{display:grid;grid-template-columns:2fr 1fr;gap:var(--gap)}
-.client-card{display:grid;grid-template-columns:1fr 1fr;background:var(--light);min-width:0}
-.client-logo{display:grid;place-items:center;background:#fff;border:1px solid var(--surface);min-height:300px;padding:40px}
-.client-logo img{width:100%;max-width:260px;height:auto;object-fit:contain;transition:transform var(--t-hover) var(--ease-out)}
-.client-logo:hover img{transform:scale(1.03)}
-.client-copy{display:flex;flex-direction:column;align-items:flex-start;padding:clamp(28px,4vw,48px);min-width:0}
-.client-copy h3{font-size:clamp(28px,2.6vw,40px);letter-spacing:-.04em;margin-bottom:12px}
-.client-copy p{font-size:16px;margin-bottom:24px}
-.client-copy .text-link{margin-top:auto}
-.client-next{display:flex;flex-direction:column;justify-content:space-between;gap:40px;padding:clamp(28px,4vw,48px);border:1px dashed #bdbdbd;color:var(--ink);text-decoration:none;transition:background var(--t-hover) var(--ease-out),border-color var(--t-hover) var(--ease-out)}
-.client-next:hover{background:var(--light);border-color:var(--ink)}
-.client-next-title{font-size:clamp(24px,2.2vw,32px);font-weight:600;letter-spacing:-.035em;line-height:1.1;color:var(--muted)}
-@media(max-width:900px){.client-grid{grid-template-columns:1fr}}
-@media(max-width:640px){.client-card{grid-template-columns:1fr}.client-logo{min-height:200px}}
-.client-next-note{font-size:16px;line-height:1.55;color:var(--muted);margin-top:-24px}
 /* Promo block under the feature cards: advertising for owners, offers for residents */
 .unitly-promo{margin-top:clamp(56px,6vw,96px);background:var(--surface);border-top:2px solid var(--ink);padding:clamp(32px,5vw,80px);display:grid;grid-template-columns:1fr 1fr;gap:var(--gap) 8%;align-items:end}
 .unitly-promo h3{font-size:var(--t-h2);line-height:1.02;letter-spacing:-.045em;margin:0 0 20px;hyphens:none}
@@ -111,3 +95,36 @@
 .unitly-feature-grid.is-intercom>.unitly-info-card:first-child .unitly-card-top{font-size:40px}
 @media(max-width:900px){.unitly-feature-grid.is-intercom{grid-template-columns:1fr}.unitly-feature-grid.is-intercom>.unitly-info-card:first-child .unitly-card-top{font-size:32px}}
 @media(max-width:760px){.intercom-flow{grid-template-columns:1fr}.intercom-step:not(:last-child)::after{display:none}.intercom-emoji{font-size:40px}}
+
+/* Smart intercom: photo and the way to choose one */
+.intercom-smart{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:var(--gap);margin-top:var(--gap);background:var(--ink);color:#fff}
+.intercom-photo{min-height:420px;overflow:hidden}
+.intercom-photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
+.intercom-smart-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(28px,4vw,64px)}
+.intercom-smart-copy h3{font-size:clamp(28px,2.8vw,44px);letter-spacing:-.04em;color:#fff;margin-bottom:16px}
+.intercom-smart-copy p{font-size:18px;color:#d6d6d6;margin-bottom:28px;max-width:44ch}
+.intercom-smart-copy .text-link{color:#fff}
+@media(max-width:900px){.intercom-smart{grid-template-columns:1fr}.intercom-photo{min-height:0;aspect-ratio:4/3}}
+
+/* Clients, then distributors: each in its own section, a wide card with the logo on a white plaque */
+.partner-grid{display:grid;gap:var(--gap)}
+.partner-card{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);background:var(--light);border-top:2px solid var(--ink);min-width:0}
+.partner-logo{display:grid;place-items:center;overflow:hidden;background:#fff;border-bottom:1px solid var(--surface);min-height:300px;padding:40px}
+.partner-logo img{width:100%;max-width:280px;height:auto;object-fit:contain;transition:transform var(--t-hover) var(--ease-out)}
+.partner-logo img.is-padded{max-width:340px;transform:scale(1.45)}
+a.partner-logo:hover img{transform:scale(1.04)}
+.partner-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(28px,4vw,56px)}
+.partner-copy h3{font-size:clamp(28px,2.8vw,44px);letter-spacing:-.04em;margin-bottom:12px}
+.partner-copy p{font-size:17px;margin-bottom:24px;max-width:48ch}
+.partner-contacts{display:flex;flex-direction:column;align-items:flex-start;gap:8px;font-size:16px}
+.partner-copy address{font-style:normal;font-size:15px;color:var(--muted);margin-top:20px}
+.partner-card.is-dark{background:var(--deep);color:var(--deep-ink)}
+.partner-card.is-dark .partner-logo{border-bottom:0}
+.partner-card.is-dark h3,.partner-card.is-dark p,.partner-card.is-dark .text-link{color:var(--deep-ink)}
+.partner-card.is-dark address{color:#a8a8a8}
+.client-next{display:grid;grid-template-columns:1.2fr 1.4fr auto;gap:var(--gap) 48px;align-items:center;margin-top:var(--gap);padding:clamp(24px,3vw,40px);border:1px dashed #bdbdbd;color:var(--ink);text-decoration:none;transition:background var(--t-hover) var(--ease-out),border-color var(--t-hover) var(--ease-out)}
+.client-next:hover{background:var(--light);border-color:var(--ink)}
+.client-next-title{font-size:clamp(22px,2vw,30px);font-weight:600;letter-spacing:-.035em;line-height:1.1}
+.client-next-note{font-size:16px;line-height:1.55;color:var(--muted)}
+@media(max-width:900px){.partner-card{grid-template-columns:1fr}.partner-logo{min-height:0;height:240px}.client-next{grid-template-columns:1fr}}
+@media(max-width:640px){.partner-logo{height:200px;padding:28px}}
