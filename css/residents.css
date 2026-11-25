@@ -96,15 +96,17 @@
 @media(max-width:900px){.unitly-feature-grid.is-intercom{grid-template-columns:1fr}.unitly-feature-grid.is-intercom>.unitly-info-card:first-child .unitly-card-top{font-size:32px}}
 @media(max-width:760px){.intercom-flow{grid-template-columns:1fr}.intercom-step:not(:last-child)::after{display:none}.intercom-emoji{font-size:40px}}
 
-/* Smart intercom: photo and the way to choose one */
-.intercom-smart{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:var(--gap);margin-top:var(--gap);background:var(--ink);color:#fff}
-.intercom-photo{min-height:420px;overflow:hidden}
-.intercom-photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
-.intercom-smart-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(28px,4vw,64px)}
-.intercom-smart-copy h3{font-size:clamp(28px,2.8vw,44px);letter-spacing:-.04em;color:#fff;margin-bottom:16px}
-.intercom-smart-copy p{font-size:18px;color:#d6d6d6;margin-bottom:28px;max-width:44ch}
+/* Smart intercom: a compact strip, photo on the left and a short pitch on the right */
+.intercom-smart{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:0;height:clamp(260px,24vw,320px);margin-top:var(--gap);background:var(--ink);color:#fff}
+.intercom-photo{position:relative;overflow:hidden}
+.intercom-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 32%;display:block}
+.intercom-smart-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(20px,3vw,40px)}
+.intercom-smart-copy .card-emoji{font-size:30px;margin-bottom:12px}
+.intercom-smart-copy h3{font-size:clamp(22px,2.1vw,32px);letter-spacing:-.04em;color:#fff;margin-bottom:10px}
+.intercom-smart-copy p{font-size:16px;color:#d6d6d6;margin-bottom:18px;max-width:46ch}
 .intercom-smart-copy .text-link{color:#fff}
-@media(max-width:900px){.intercom-smart{grid-template-columns:1fr}.intercom-photo{min-height:0;aspect-ratio:4/3}}
+@media(max-width:900px){.intercom-smart{grid-template-columns:minmax(0,2fr) minmax(0,3fr);height:auto}.intercom-photo{min-height:200px}}
+@media(max-width:640px){.intercom-smart{grid-template-columns:1fr}.intercom-photo{min-height:0;aspect-ratio:16/9}}
 
 /* Clients, then distributors: each in its own section, a wide card with the logo on a white plaque */
 .partner-grid{display:grid;gap:var(--gap)}
